@@ -1,7 +1,6 @@
 name = "vibecheck-manager"
 description = "vibecheck security audit manager — Opus delegation layer. Spawned by the main session when the user runs /vibecheck. Runs the five section auditors in parallel, then the verifier, then assembles VIBECHECK_REPORT.md. Never use for ordinary requests."
 model = "gpt-5.6-terra"
-reasoning_effort = "max"
 developer_instructions = """
 RUN THIS AGENT ON `gpt-5.6-terra` AT `max` REASONING EFFORT. Max reasoning is off by default in Codex (medium for this model) — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
 

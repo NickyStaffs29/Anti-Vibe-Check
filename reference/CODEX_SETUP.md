@@ -75,14 +75,19 @@ carries the section-specific method guidance across untouched — the sink-first
 three-question endpoint procedure in S2, the raw-body subtlety in S4.3. That guidance is where
 the audit quality lives.
 
-## If the per-agent model key isn't honored
+## Reasoning effort comes from profiles, not the manifest
 
-The TOMLs set `model` and `reasoning_effort` per agent. Codex's agent schema is not formally
-documented for these keys, and the bundled example agents use only `name`, `description`, and
-`developer_instructions`.
+Codex's agent schema accepts `model` but **not** `reasoning_effort`. An unknown field is not
+ignored — Codex discards the entire agent file with `Ignoring malformed agent role definition`.
+Verified with `codex doctor` on codex-cli 0.144.1.
 
-If your Codex build ignores them, nothing breaks — the requirement is also stated in plain text
-at the top of every agent's instructions, and the agent will report the mismatch in its first
-line. To pin it properly in that case, launch each tier under its profile
-(`vibecheck-manager`, `vibecheck-auditor`, `vibecheck-verifier` in `profiles.toml`) rather than
-relying on the manifest.
+So the TOMLs set `model` only, and effort is carried two ways:
+
+1. **`codex/profiles.toml`** — the real mechanism. `model_reasoning_effort` is a valid config
+   key, so launching under a tier profile pins it.
+2. **The instruction header** in every agent, which names the required model and effort and tells
+   the agent to report a mismatch in its first line of output.
+
+If you ever add a field to these TOMLs, run `codex doctor` afterward and check the startup
+warnings. A rejected agent file fails silently at run time — the agent simply doesn't exist, and
+the orchestrator will improvise around the gap rather than error.

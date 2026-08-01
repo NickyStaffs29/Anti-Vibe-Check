@@ -72,11 +72,15 @@ def main():
         if '"""' in instructions:
             raise SystemExit(f"{name}: body contains a TOML triple-quote delimiter")
 
+        # NOTE: Codex's agent schema accepts `model` but NOT `reasoning_effort` —
+        # an unknown field makes it discard the whole file ("Ignoring malformed agent
+        # role definition"). Verified with `codex doctor` on codex-cli 0.144.1.
+        # Effort is carried by codex/profiles.toml plus the directive in the
+        # instruction header below.
         toml = (
             f'name = "{name}"\n'
             f'description = "{desc}"\n'
             f'model = "{model}"\n'
-            f'reasoning_effort = "{effort}"\n'
             f'developer_instructions = """\n{instructions}"""\n'
         )
         (OUT / f"{name}.toml").write_text(toml)
