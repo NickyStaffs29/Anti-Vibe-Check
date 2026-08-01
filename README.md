@@ -6,7 +6,8 @@ Five section auditors run in parallel, then an adversarial verifier tries to **r
 failure they reported and **re-audits** every pass that didn't cite evidence. Read-only end to
 end: nothing in the audit pipeline can edit your source.
 
-Ships as a Claude Code plugin, with a build prompt for the Codex mirror.
+Ships as a Claude Code plugin and as native Codex agents — one shared checklist, so the two
+stacks can't drift apart.
 
 ---
 
@@ -63,11 +64,11 @@ often wrong.
 ## Pipeline
 
 ```
-you (main session)              Fable / gpt-5.6-sol
+you (main session)              Fable / gpt-5.6-sol          @ high
   │  Recon: stack, backend, auth, payment provider, client/server boundary, commit SHA.
   │  Pre-marks checks that cannot apply. Owns scope and final acceptance.
   │
-  └─→ vibecheck-manager         Opus / gpt-5.6-terra
+  └─→ vibecheck-manager         Opus / gpt-5.6-terra         @ max
         │  Writes five self-contained work orders. Delegates only; never audits.
         │
         ├─→ vc-secrets          S1  Secrets & Supply Chain        6 checks  ┐
@@ -75,9 +76,9 @@ you (main session)              Fable / gpt-5.6-sol
         ├─→ vc-injection        S3  Injection & Untrusted Input   5 checks  ├ PARALLEL
         ├─→ vc-abuse            S4  Abuse & Money                 4 checks  │
         ├─→ vc-surface          S5  Surface & Exposure            8 checks  ┘
-        │                       Sonnet / gpt-5.6-luna
+        │                       Sonnet / gpt-5.6-luna        @ max
         │
-        └─→ vc-verifier         Opus / gpt-5.6-terra
+        └─→ vc-verifier         Opus / gpt-5.6-sol  FRESH   @ high
               Refutes every FAIL. Re-audits every unevidenced PASS.
 ```
 
@@ -90,14 +91,31 @@ removes the write race that parallel sections would otherwise have.
 
 ### Model tiers
 
-Judgment lives in tier 2. The verifier decides what's real, which is why it's never demoted even
-though it's the most expensive single agent in a run.
+Two knobs matter here, and the second one is the one people miss.
 
-| Tier | Role | Claude Code | Codex |
-|------|------|-------------|-------|
-| 1 | Recon, scope, acceptance | Fable | `gpt-5.6-sol` |
-| 2 | Manager + Verifier | Opus | `gpt-5.6-terra` |
-| 3 | Section auditors | Sonnet | `gpt-5.6-luna` |
+| Role | Claude Code | Codex | Effort |
+|------|-------------|-------|--------|
+| Orchestrator — recon, scope, acceptance | Fable | `gpt-5.6-sol` | high |
+| Manager — scoping and routing | Opus | `gpt-5.6-terra` | `max` |
+| Section auditors ×5 | Sonnet | `gpt-5.6-luna` | `max` |
+| Verifier — **fresh instance** | Opus | `gpt-5.6-sol` | high |
+
+**Max reasoning effort is off by default in both stacks.** Codex ships `sol=low`, `terra=medium`,
+`luna=medium`; Claude Code takes `effort` as a spawn parameter that nothing sets for you. An audit
+run without pinning it is running every agent below its capability.
+
+This matters more than the model choice. A cheap model at max reasoning substantially outperforms
+the same model at its default, which is the entire economic argument for this pipeline: five
+parallel auditors at max effort cost a fraction of one top-tier pass and cover more ground,
+because section auditing is mechanical evidence-gathering where thoroughness beats sophistication.
+
+The verifier is deliberately a **fresh top-tier instance** — never a reused auditor. Its value
+comes from not having been in the room when the findings were formed. A reviewer that inherits
+the auditor's framing just re-derives the auditor's conclusions.
+
+Tiering follows [@daniel_mac8's `sol-advisor` pattern](https://x.com/daniel_mac8/status/2083607027813662810):
+frontier model orchestrates, cheap model at max reasoning implements routine work, mid model at
+max handles the complex parts, and a fresh frontier instance reviews.
 
 ---
 
@@ -165,12 +183,42 @@ rather than invent findings.
 
 ## Install
 
+### Claude Code
+
 ```bash
 claude plugin marketplace add NickyStaffs29/Anti-Vibe-Check
 claude plugin install vibecheck@vibecheck
 ```
 
 Restart Claude Code, or run `/reload-plugins`.
+
+### Codex
+
+Codex reads Claude Code plugin marketplaces natively, so the same repo installs directly:
+
+```bash
+codex plugin marketplace add https://github.com/NickyStaffs29/Anti-Vibe-Check
+codex plugin add vibecheck@vibecheck
+```
+
+Then set up the native Codex agents, which run the tiers at pinned reasoning effort:
+
+```bash
+mkdir -p ~/.codex/vibecheck
+git clone https://github.com/NickyStaffs29/Anti-Vibe-Check /tmp/avc
+cp /tmp/avc/codex/agents/*.toml ~/.codex/agents/
+ln -s /tmp/avc/reference/checklist.md ~/.codex/vibecheck/checklist.md
+cat /tmp/avc/codex/profiles.toml >> ~/.codex/config.toml
+```
+
+Run it with the orchestrator profile:
+
+```bash
+codex --profile vibecheck "Run a vibecheck security audit on this repo."
+```
+
+`codex/agents/*.toml` are generated from the Claude agents by `codex/build-agents.py`, so the two
+stacks can't drift. Regenerate after editing anything in `agents/`.
 
 ## Usage
 
@@ -220,10 +268,10 @@ Two rules it won't break:
 
 ## Codex mirror
 
-[`reference/CODEX_BUILD_PROMPT.md`](reference/CODEX_BUILD_PROMPT.md) is a self-contained prompt
-for a fresh Codex session. It ports the seven agents to `~/.codex/agents/*.toml`, symlinks the
-**same** `checklist.md` rather than copying it, and maps the tiers to
-`gpt-5.6-sol` / `gpt-5.6-terra` / `gpt-5.6-luna`.
+The seven agents are built and committed at [`codex/agents/`](codex/agents), generated from the
+Claude agents by [`codex/build-agents.py`](codex/build-agents.py). Tier profiles are in
+[`codex/profiles.toml`](codex/profiles.toml); full setup in
+[`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
 
 One checklist, two stacks, no drift. A report from either side has the same format, so two runs
 are diffable.

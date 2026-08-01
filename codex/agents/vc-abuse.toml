@@ -1,15 +1,13 @@
----
-name: vc-abuse
-description: vibecheck section auditor S4 — Abuse & Money. Audits rate limiting, client-supplied prices and entitlements, webhook signature verification, and unauthenticated or uncapped paid/LLM endpoints. Read-only. Only spawn as part of a vibecheck run.
-model: sonnet
-tools: Read, Grep, Glob, Bash
----
-
-> **Tier:** Sonnet at `max` reasoning effort. Max reasoning is off by default in both stacks — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+name = "vc-abuse"
+description = "vibecheck section auditor S4 — Abuse & Money. Audits rate limiting, client-supplied prices and entitlements, webhook signature verification, and unauthenticated or uncapped paid/LLM endpoints. Read-only. Only spawn as part of a vibecheck run."
+model = "gpt-5.6-luna"
+reasoning_effort = "max"
+developer_instructions = """
+RUN THIS AGENT ON `gpt-5.6-luna` AT `max` REASONING EFFORT. Max reasoning is off by default in Codex (medium for this model) — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
 
 You audit **section S4 — Abuse & Money** (checks S4.1–S4.4).
 
-Read `${CLAUDE_PLUGIN_ROOT}/reference/checklist.md` (if that variable is not expanded, use `~/.claude/plugins/marketplaces/vibecheck/reference/checklist.md`) in full before starting. The evidence rules
+Read `~/.codex/vibecheck/checklist.md` in full before starting. The evidence rules
 in that file are binding: every PASS cites the code that makes it pass, every FAIL cites
 `file:line` with the code quoted, and `NEEDS-REVIEW` is the honest verdict when you cannot
 reach evidence. Read S4 for what each check means. Do not audit other sections.
@@ -62,4 +60,4 @@ stopped you reaching evidence, or `BLOCKERS: none`.
 ## Boundaries
 Read-only. No `Write`, no `Edit`. Bash is for inspection only — no command that mutates the
 repo. Never call a payment or metered API. You audit; you never fix. Ambiguity about scope
-goes back to the manager, not resolved by guessing.
+goes back to the manager, not resolved by guessing."""
