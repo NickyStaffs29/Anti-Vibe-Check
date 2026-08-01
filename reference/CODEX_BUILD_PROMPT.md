@@ -10,18 +10,21 @@ in either stack, from any session, with identical checks and identical output.
 
 ## What already exists (read these first, don't recreate them)
 
-- `~/.claude/plugins/cache/vibecheck/vibecheck/0.1.0/reference/checklist.md` — **the canonical checklist.** 30 security checks
+- `~/.claude/plugins/marketplaces/vibecheck/reference/checklist.md` — **the canonical checklist.** 30 security checks
   across 5 sections, plus binding evidence rules and the report contract. This file is the single
   source of truth for BOTH stacks. Do not copy its contents into any agent file, and do not
   rewrite or "improve" the checks — divergence between the two implementations is the specific
   failure this design exists to prevent.
-- `~/.claude/plugins/cache/vibecheck/vibecheck/0.1.0/agents/vibecheck-manager.md`, `vc-secrets.md`, `vc-access.md`,
+- `~/.claude/plugins/marketplaces/vibecheck/agents/vibecheck-manager.md`, `vc-secrets.md`, `vc-access.md`,
   `vc-injection.md`, `vc-abuse.md`, `vc-surface.md`, `vc-verifier.md` — the Claude agents.
   Read all seven. Your `.toml` agents are ports of these, not new designs.
-- `~/.claude/plugins/cache/vibecheck/vibecheck/0.1.0/SKILL.md` — the Claude entry point (recon → delegate →
-  accept), and `~/.claude/plugins/cache/vibecheck/vibecheck/0.1.0/commands/vibecheck-fix.md` — the fix command.
+- `~/.claude/plugins/marketplaces/vibecheck/SKILL.md` — the Claude entry point (recon → delegate →
+  accept), and `~/.claude/plugins/marketplaces/vibecheck/commands/vibecheck-fix.md` — the fix command.
 
 Read the checklist and all seven agent files before writing anything.
+
+If the plugin isn't installed locally, clone the repo instead and read from there:
+`git clone https://github.com/NickyStaffs29/Anti-Vibe-Check` — same files, same layout.
 
 ## Architecture
 
@@ -73,7 +76,7 @@ the model when it spawns each worker. Tell me which of the two you found.
 **1. Shared checklist, not a copy.**
 ```
 mkdir -p ~/.codex/vibecheck
-ln -s ~/.claude/plugins/cache/vibecheck/vibecheck/0.1.0/reference/checklist.md ~/.codex/vibecheck/checklist.md
+ln -s ~/.claude/plugins/marketplaces/vibecheck/reference/checklist.md ~/.codex/vibecheck/checklist.md
 ```
 Symlink so there is exactly one source of truth. If your sandbox blocks reading through the
 symlink, copy the file instead and add a header line to both copies naming the other path as a
