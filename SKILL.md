@@ -43,6 +43,24 @@ Determine which checks cannot apply — no payment provider means most of S4 is 
 with no backend means most of S2 is N/A. Pre-marking these stops auditors from inventing findings
 to look useful.
 
+**1a. Abort before spawning anything if there is nothing to audit.** Cheap check, done first:
+
+- Does the target contain application source at all? (`rg --files` / `find . -type f`)
+- Is it a git repo? (`git rev-parse HEAD`)
+- Are there dependency manifests, routes, schema — any of the surfaces the 30 checks describe?
+
+If the answer is no, **stop and say so.** Do not spawn the manager. Do not spawn five auditors at
+max effort to rediscover an empty directory — that costs a full pipeline run and returns
+30 × NEEDS-REVIEW, which is correct but worthless.
+
+Report what you found (empty directory, no repo, docs-only, wrong path) and ask for the real
+target. Name the most likely cause: an invocation with no path argument audits the current
+working directory, and in Codex that is often the session scratch directory rather than a project.
+
+An INCONCLUSIVE result is honest and it is not a clean bill of health — but catching it here costs
+one `ls` instead of seven agents.
+
+
 **2. Spawn `vibecheck-manager`** on Opus at `effort: 'max'`, with a self-contained work order:
 repo path, your recon findings, pre-marked N/A checks with reasons, and any `--deep` /
 `--section` flag. It spawns the five

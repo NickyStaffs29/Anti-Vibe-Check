@@ -27,6 +27,26 @@ TIERS = {
     "vc-verifier":       ("gpt-5.6-sol",   "high"),
 }
 
+# Claude-stack -> Codex-stack terminology. Order matters: longest first.
+TERMS = [
+    ("one message, five Task calls", "one turn, five parallel sub-agent spawns"),
+    ("five Task calls", "five parallel sub-agent spawns"),
+    ("Task calls", "sub-agent spawns"),
+    ("Task call", "sub-agent spawn"),
+    ("`effort: 'max'`", "`model_reasoning_effort = \"max\"`"),
+    ("effort: 'max'", 'the `vibecheck-auditor` profile (max reasoning)'),
+    ("effort: 'high'", 'the `vibecheck-verifier` profile (high reasoning)'),
+    ("on Opus, still at `max`", "on `gpt-5.6-terra`, still at max reasoning"),
+    ("spawn them on Opus", "spawn them on `gpt-5.6-terra`"),
+    ("Spawn `vc-verifier` on Opus", "Spawn `vc-verifier` on `gpt-5.6-sol`"),
+    ("Five Sonnet auditors", "Five Luna auditors"),
+    ("one Opus pass", "one Sol pass"),
+    ("(Fable)", "(the orchestrator session)"),
+    ("Fable", "the orchestrator"),
+    ("Opus", "`gpt-5.6-terra`"),
+    ("Sonnet", "`gpt-5.6-luna`"),
+]
+
 CHECKLIST = "~/.codex/vibecheck/checklist.md"
 
 # Codex per-model defaults, from ~/.codex/models_cache.json.
@@ -53,11 +73,19 @@ def main():
             print(f"skip {name} (no tier assigned)")
             continue
         model, effort = TIERS[name]
+        for a, b in TERMS:
+            desc = desc.replace(a, b)
 
         # Repoint the checklist at the Codex-side path.
         body = re.sub(r"`\$\{CLAUDE_PLUGIN_ROOT\}/reference/checklist\.md`[^\n]*?\)",
                       f"`{CHECKLIST}`", body)
         body = body.replace("${CLAUDE_PLUGIN_ROOT}/reference/checklist.md", CHECKLIST)
+
+        # Translate Claude-stack terminology. The bodies are written for Claude Code;
+        # left untranslated, a Codex agent reads instructions naming a tool it does not
+        # have and model tiers that are not its own, and improvises around them.
+        for a, b in TERMS:
+            body = body.replace(a, b)
 
         # Swap the Claude-side tier line for the Codex one.
         body = re.sub(r"^> \*\*Tier:\*\*.*?\n\n", "", body, flags=re.S | re.M)

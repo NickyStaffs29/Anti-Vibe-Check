@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "vibecheck",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "30-point security audit for AI-assisted apps: 5 parallel section auditors plus an adversarial verifier.",
   "author": {
     "name": "NickyStaffs29",
