@@ -209,7 +209,13 @@ git clone https://github.com/NickyStaffs29/Anti-Vibe-Check /tmp/avc
 cp /tmp/avc/codex/agents/*.toml ~/.codex/agents/
 ln -s /tmp/avc/reference/checklist.md ~/.codex/vibecheck/checklist.md
 cat /tmp/avc/codex/profiles.toml >> ~/.codex/config.toml
+
+mkdir -p ~/.codex/skills/vibecheck
+ln -s /tmp/avc/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
 ```
+
+The last two lines register `/vibecheck` as a Codex skill. The plugin install alone won't — the
+root `SKILL.md` targets Claude Code and uses `${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand.
 
 Run it with the orchestrator profile:
 

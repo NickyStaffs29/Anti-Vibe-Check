@@ -14,7 +14,15 @@ mkdir -p ~/.codex/vibecheck
 cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
 ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
 cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
+
+mkdir -p ~/.codex/skills/vibecheck
+ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
 ```
+
+That last pair is what gives you `/vibecheck` in Codex. The plugin install alone does not — the
+root `SKILL.md` is written for Claude Code and uses `${CLAUDE_PLUGIN_ROOT}`, which Codex does not
+expand. `codex/SKILL.md` is the Codex-native entry point, pointing at the Codex agents, the
+Codex checklist path, and the tier profiles.
 
 Symlink the checklist rather than copying it. One file, both stacks — that's the property that
 keeps the Claude and Codex audits identical, and a copy silently breaks it the first time either
