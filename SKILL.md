@@ -13,16 +13,21 @@ on Opus instead of Sonnet · `--section S2` to run one section plus verification
 
 ## Pipeline
 
-| Piece | Model | Scope |
-|---|---|---|
-| you (main session) | Fable | Recon and scope, final acceptance |
-| `vibecheck-manager` | Opus | Delegates, collects, assembles the report |
-| `vc-secrets` | Sonnet | S1 Secrets & Supply Chain — 6 checks |
-| `vc-access` | Sonnet | S2 Access Control — 7 checks |
-| `vc-injection` | Sonnet | S3 Injection & Untrusted Input — 5 checks |
-| `vc-abuse` | Sonnet | S4 Abuse & Money — 4 checks |
-| `vc-surface` | Sonnet | S5 Surface & Exposure — 8 checks |
-| `vc-verifier` | Opus | Refutes every FAIL, re-audits every unevidenced PASS |
+| Piece | Model | Effort | Scope |
+|---|---|---|---|
+| you (main session) | Fable | high | Recon and scope, final acceptance |
+| `vibecheck-manager` | Opus | `max` | Delegates, collects, assembles the report |
+| `vc-secrets` | Sonnet | `max` | S1 Secrets & Supply Chain — 6 checks |
+| `vc-access` | Sonnet | `max` | S2 Access Control — 7 checks |
+| `vc-injection` | Sonnet | `max` | S3 Injection & Untrusted Input — 5 checks |
+| `vc-abuse` | Sonnet | `max` | S4 Abuse & Money — 4 checks |
+| `vc-surface` | Sonnet | `max` | S5 Surface & Exposure — 8 checks |
+| `vc-verifier` | Opus (fresh) | `high` | Refutes every FAIL, re-audits every unevidenced PASS |
+
+**The effort column is not decoration.** Max reasoning is off by default, and a cheap model at
+max reasoning substantially outperforms the same model at its default — that trade is what makes
+five parallel auditors cheaper and more thorough than one expensive pass. Section auditing is
+mechanical evidence-gathering, where thoroughness beats sophistication.
 
 The 30 checks live in `${CLAUDE_PLUGIN_ROOT}/reference/checklist.md` — one file, read by every
 agent. No agent restates a check, so the Claude and Codex implementations cannot drift apart.
@@ -38,8 +43,9 @@ Determine which checks cannot apply — no payment provider means most of S4 is 
 with no backend means most of S2 is N/A. Pre-marking these stops auditors from inventing findings
 to look useful.
 
-**2. Spawn `vibecheck-manager`** with a self-contained work order: repo path, your recon findings,
-pre-marked N/A checks with reasons, and any `--deep` / `--section` flag. It spawns the five
+**2. Spawn `vibecheck-manager`** on Opus at `effort: 'max'`, with a self-contained work order:
+repo path, your recon findings, pre-marked N/A checks with reasons, and any `--deep` /
+`--section` flag. It spawns the five
 section auditors in parallel, then `vc-verifier`, then assembles `VIBECHECK_REPORT.md` and adds
 it to `.gitignore`.
 
@@ -80,5 +86,5 @@ plausible-looking PASS is most often wrong.
 
 ## Codex
 
-`${CLAUDE_PLUGIN_ROOT}/reference/CODEX_BUILD_PROMPT.md` builds the mirror for a fresh Codex
-session — same checklist file, tiers mapped `gpt-5.6-sol` / `gpt-5.6-terra` / `gpt-5.6-luna`.
+Native Codex agents live in `${CLAUDE_PLUGIN_ROOT}/codex/agents/`. Setup is in
+`${CLAUDE_PLUGIN_ROOT}/reference/CODEX_SETUP.md`.

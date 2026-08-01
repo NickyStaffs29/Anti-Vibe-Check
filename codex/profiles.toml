@@ -1,0 +1,33 @@
+# vibecheck profiles for Codex — append to ~/.codex/config.toml
+#
+# Max reasoning effort is OFF by default. Codex's own per-model defaults are
+# sol=low, terra=medium, luna=medium, so an audit run without these profiles is
+# running every agent below its capability. These pin each tier explicitly.
+#
+# Verified against ~/.codex/models_cache.json: sol/terra support up to `ultra`,
+# luna up to `max`.
+#
+# Usage:  codex --profile vibecheck "/vibecheck"
+
+# Tier 1 — orchestrator. Recon, scope, acceptance.
+[profiles.vibecheck]
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
+
+# Tier 2 — manager. Scoping and routing; the judgment that decides what gets audited.
+[profiles.vibecheck-manager]
+model = "gpt-5.6-terra"
+model_reasoning_effort = "max"
+
+# Tier 3 — section auditors. Mechanical evidence-gathering, where thoroughness beats
+# sophistication. Luna at max reasoning is the whole economic argument for this pipeline:
+# five of these cost a fraction of one Sol pass and cover more ground.
+[profiles.vibecheck-auditor]
+model = "gpt-5.6-luna"
+model_reasoning_effort = "max"
+
+# Verifier — a FRESH Sol instance. Its value comes from not having been in the room when
+# the findings were formed, so never reuse an auditor session for this.
+[profiles.vibecheck-verifier]
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"
