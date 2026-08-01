@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "vibecheck",
+  "description": "Security auditing for AI-assisted apps.",
+  "owner": {
+    "name": "Nick Stafford"
+  },
+  "plugins": [
+    {
+      "name": "vibecheck",
+      "description": "30-point security audit for vibe-coded apps: 5 parallel section auditors plus an adversarial verifier. Read-only.",
+      "source": "./",
+      "category": "security"
+    }
+  ]
+}
