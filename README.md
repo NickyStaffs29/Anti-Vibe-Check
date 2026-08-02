@@ -55,19 +55,14 @@ The skill symlink is required — the root `SKILL.md` targets Claude Code and us
 `${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand. Full detail:
 [`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
 
-## 2. Get updates automatically (weekly)
+## 2. Get updates automatically
 
 ### Claude Code
 
-Paste this into Claude Code once and it will set up a recurring weekly job on your device — you
-never have to think about updates again:
+**Nothing to set up.** Claude Code refreshes git-hosted marketplaces in the background, and this
+marketplace doesn't pin versions — every update pushed here reaches you automatically.
 
-> Set up a recurring weekly automation on this device that runs
-> `claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck`
-> so my vibecheck plugin stays current. Use the native scheduler for my OS and confirm it's
-> registered.
-
-To update manually instead:
+To force a refresh right now:
 
 ```bash
 claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck
