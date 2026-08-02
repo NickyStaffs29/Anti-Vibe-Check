@@ -78,7 +78,7 @@ you (main session)              Fable / gpt-5.6-sol          @ high
         ├─→ vc-surface          S5  Surface & Exposure            8 checks  ┘
         │                       Sonnet / gpt-5.6-luna        @ max
         │
-        └─→ vc-verifier         Opus / gpt-5.6-sol  FRESH   @ high
+        └─→ vc-verifier         Opus / gpt-5.6-sol  FRESH   @ max
               Refutes every FAIL. Re-audits every unevidenced PASS.
 ```
 
@@ -102,7 +102,7 @@ Two knobs matter here, and the second one is the one people miss.
 | Orchestrator — recon, scope, acceptance | Fable | `gpt-5.6-sol` | high |
 | Manager — scoping and routing | Opus | `gpt-5.6-terra` | `max` |
 | Section auditors ×5 | Sonnet | `gpt-5.6-luna` | `max` |
-| Verifier — **fresh instance** | Opus | `gpt-5.6-sol` | high |
+| Verifier — **fresh instance** | Opus | `gpt-5.6-sol` | `max` |
 
 **Max reasoning effort is off by default in both stacks.** Codex ships `sol=low`, `terra=medium`,
 `luna=medium`. On the Claude Code side, each agent pins its own tier with an `effort` key in its
@@ -117,7 +117,9 @@ because section auditing is mechanical evidence-gathering where thoroughness bea
 
 The verifier is deliberately a **fresh top-tier instance** — never a reused auditor. Its value
 comes from not having been in the room when the findings were formed. A reviewer that inherits
-the auditor's framing just re-derives the auditor's conclusions.
+the auditor's framing just re-derives the auditor's conclusions. It's also the last line against
+a false PASS — the one error class that gets people breached — which makes it the stage most
+entitled to max reasoning effort.
 
 Tiering follows [@daniel_mac8's `sol-advisor` pattern](https://x.com/daniel_mac8/status/2083607027813662810):
 frontier model orchestrates, cheap model at max reasoning implements routine work, mid model at

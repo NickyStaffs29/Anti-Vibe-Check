@@ -28,7 +28,7 @@ TIERS = {
     "vc-abuse":          ("gpt-5.6-luna",  "max"),
     "vc-surface":        ("gpt-5.6-luna",  "max"),
     "vc-fixer":          ("gpt-5.6-luna",  "max"),
-    "vc-verifier":       ("gpt-5.6-sol",   "high"),
+    "vc-verifier":       ("gpt-5.6-sol",   "max"),
 }
 
 # Claude-stack -> Codex-stack terminology. Order matters: longest first.

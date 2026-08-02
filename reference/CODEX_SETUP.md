@@ -45,7 +45,7 @@ stack, pre-marks checks that can't apply, and hands a scoped work order to `vibe
 | orchestrator (your session) | `gpt-5.6-sol` | high | low |
 | `vibecheck-manager` | `gpt-5.6-terra` | `max` | medium |
 | `vc-secrets` `vc-access` `vc-injection` `vc-abuse` `vc-surface` | `gpt-5.6-luna` | `max` | medium |
-| `vc-verifier` — fresh instance | `gpt-5.6-sol` | high | low |
+| `vc-verifier` — fresh instance | `gpt-5.6-sol` | `max` | low |
 
 The "Codex default" column is the point. Every one of these ships below the effort this pipeline
 wants, so an install that skips `profiles.toml` runs the whole audit underpowered — and it will

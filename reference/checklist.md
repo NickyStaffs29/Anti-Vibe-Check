@@ -72,7 +72,7 @@ gets skimmed is the real CRITICAL sitting underneath.
 ---
 
 ## S1 — Secrets & Supply Chain
-Agent: `vc-secrets` · Default tier: frontline
+Agent: `vc-secrets` · Default tier: section auditor
 
 ### S1.1 — No secrets in client-reachable code · CRITICAL
 Hunt: API keys, tokens, passwords, connection strings, private keys hardcoded in any file
@@ -115,7 +115,7 @@ Do not install anything. Do not run `--fix`.
 ---
 
 ## S2 — Access Control
-Agent: `vc-access` · Default tier: frontline
+Agent: `vc-access` · Default tier: section auditor
 The highest-yield section. Most vibe-coded breaches are here, not in exotic injection.
 
 ### S2.1 — Row Level Security on every table · CRITICAL
@@ -165,7 +165,7 @@ Fail when: a normal signup can reach elevated privileges.
 ---
 
 ## S3 — Injection & Untrusted Input
-Agent: `vc-injection` · Default tier: frontline
+Agent: `vc-injection` · Default tier: section auditor
 Common shape: untrusted data reaches a dangerous sink. Trace source → sink.
 
 ### S3.1 — Queries are parameterized · CRITICAL
@@ -201,7 +201,7 @@ Fail when: no allowlist, no scheme restriction, no block on private ranges
 ---
 
 ## S4 — Abuse & Money
-Agent: `vc-abuse` · Default tier: frontline
+Agent: `vc-abuse` · Default tier: section auditor
 Frequently all-N/A on a pre-revenue app. Say so rather than inventing findings.
 
 ### S4.1 — Rate limiting on the API · HIGH
@@ -230,7 +230,7 @@ Impact to state plainly: an open one is your bill, and it is discovered by scann
 ---
 
 ## S5 — Surface & Exposure
-Agent: `vc-surface` · Default tier: frontline
+Agent: `vc-surface` · Default tier: section auditor
 
 ### S5.1 — Admin and debug endpoints locked or removed in production · CRITICAL
 Hunt: `/debug`, `/admin`, `/test`, `/seed`, `/reset`, `/__`, GraphQL introspection or

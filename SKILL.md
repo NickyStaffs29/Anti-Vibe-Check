@@ -23,7 +23,7 @@ on Opus instead of Sonnet · `--section S2` to run one section plus verification
 | `vc-injection` | Sonnet | `max` | S3 Injection & Untrusted Input — 5 checks |
 | `vc-abuse` | Sonnet | `max` | S4 Abuse & Money — 4 checks |
 | `vc-surface` | Sonnet | `max` | S5 Surface & Exposure — 8 checks |
-| `vc-verifier` | Opus (fresh) | `high` | Refutes every FAIL, re-audits every unevidenced PASS |
+| `vc-verifier` | Opus (fresh) | `max` | Refutes every FAIL, re-audits every unevidenced PASS |
 
 **The effort column is not decoration.** Max reasoning is off by default, and a cheap model at
 max reasoning substantially outperforms the same model at its default — that trade is what makes

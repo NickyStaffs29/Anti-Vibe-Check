@@ -35,8 +35,10 @@ model_reasoning_effort = "max"
 sandbox_mode = "read-only"
 
 # Verifier — a FRESH Sol instance. Its value comes from not having been in the room when
-# the findings were formed, so never reuse an auditor session for this.
+# the findings were formed, so never reuse an auditor session for this. It is also the last
+# line against a false PASS, the one error class this pipeline exists to catch, so it is the
+# stage most entitled to max reasoning — sol supports up to `ultra` (see the file header).
 [profiles.vibecheck-verifier]
 model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "max"
 sandbox_mode = "read-only"

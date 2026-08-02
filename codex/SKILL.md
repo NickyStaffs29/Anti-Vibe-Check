@@ -27,7 +27,7 @@ on `gpt-5.6-terra` instead of `gpt-5.6-luna` · `--section S2` for one section p
 | `vc-injection` | `gpt-5.6-luna` | `max` | S3 Injection & Untrusted Input — 5 checks |
 | `vc-abuse` | `gpt-5.6-luna` | `max` | S4 Abuse & Money — 4 checks |
 | `vc-surface` | `gpt-5.6-luna` | `max` | S5 Surface & Exposure — 8 checks |
-| `vc-verifier` | `gpt-5.6-sol` **fresh** | high | Refutes every FAIL, re-audits every unevidenced PASS |
+| `vc-verifier` | `gpt-5.6-sol` **fresh** | `max` | Refutes every FAIL, re-audits every unevidenced PASS |
 
 **Effort is the load-bearing column.** Codex defaults are `sol=low`, `terra=medium`,
 `luna=medium` — max reasoning is off unless something turns it on. A cheap model at max reasoning

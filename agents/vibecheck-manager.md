@@ -53,7 +53,7 @@ never edit, return findings in the final message.
 without per-check verdicts, or with a PASS lacking cited evidence, re-run that one auditor
 once with the specific defect named. Once.
 
-**4. Spawn `vc-verifier`** on Opus, with the full collected findings. Its frontmatter pins `high`
+**4. Spawn `vc-verifier`** on Opus, with the full collected findings. Its frontmatter pins `max`
 effort.
 
 It must be a **fresh instance** — never reuse a section auditor, and never hand it your own
