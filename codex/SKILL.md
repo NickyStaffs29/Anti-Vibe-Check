@@ -6,7 +6,9 @@ description: Run a 30-point security audit targeting the failure modes common to
 # vibecheck
 
 A 30-check security audit: five section auditors in parallel, then an adversarial verification
-pass. Read-only end to end — nothing in this pipeline edits source.
+pass. No agent in this pipeline holds `Write` or `Edit` — Bash stays instruction-bound to
+inspection, not sandboxed out of writing. (`vibecheck-auditor` and `vibecheck-verifier` do add a
+`sandbox_mode = "read-only"` platform constraint — see `codex/profiles.toml`.)
 
 This is the **Codex** entry point. The Claude Code equivalent is `SKILL.md` at the repo root;
 both read the same checklist so the two stacks stay identical.

@@ -6,7 +6,8 @@ description: Run a 30-point security audit targeting the failure modes common to
 # vibecheck
 
 A 30-check security audit: five section auditors in parallel, then an adversarial verification
-pass. Read-only end to end — nothing in this pipeline edits source.
+pass. No agent in this pipeline holds `Write` or `Edit` — Bash stays instruction-bound to
+inspection, not sandboxed out of writing.
 
 Arguments (all optional): a path to audit (default: cwd) · `--deep` to run the section auditors
 on Opus instead of Sonnet · `--section S2` to run one section plus verification.

@@ -85,9 +85,13 @@ you (main session)              Fable / gpt-5.6-sol          @ high
 The five sections run **in parallel** — they're independent, so serializing them costs
 wall-clock and buys nothing.
 
-Section auditors have **no write capability at all**. They return findings in their final
-message and the manager writes the report. Read-only is structural rather than a promise, and it
-removes the write race that parallel sections would otherwise have.
+Section auditors hold **no `Write` or `Edit` tools**. They return findings in their final message
+and the manager writes the report, which removes the write race that parallel sections would
+otherwise have. Bash stays available — S1.4's git-history check and S1.6's dependency audit both
+run through it — and it's kept to inspection **by instruction, not by sandbox**: nothing stops a
+Bash call from mutating the repo except the agent's own instructions. A `PreToolUse` hook could
+enforce that boundary at the platform level instead; that's a future hardening step, not something
+this pass builds.
 
 ### Model tiers
 

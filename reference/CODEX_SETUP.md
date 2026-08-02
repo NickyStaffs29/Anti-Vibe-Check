@@ -59,6 +59,36 @@ model can't reliably report its own reasoning-effort setting, so it isn't asked 
 Verified against `~/.codex/models_cache.json`: sol and terra support up to `ultra`, luna up to
 `max`.
 
+## Sandbox mode on the auditor and verifier profiles
+
+`vibecheck-auditor` and `vibecheck-verifier` in `codex/profiles.toml` set `sandbox_mode =
+"read-only"`. That's Codex's own OS-enforced sandbox, not an instruction — a command run under it
+is blocked from writing regardless of what the agent's prompt says, which is a stronger guarantee
+than "Bash is told not to mutate anything."
+
+Verified against the current Codex CLI config reference
+(`developers.openai.com/codex/config-reference`, which redirects to
+`learn.chatgpt.com/docs/config-file/config-reference`) and its companion sample config
+(`.../config-sample`): `sandbox_mode` accepts `read-only | workspace-write |
+danger-full-access`, and profile files use the same fields as `config.toml` — the sample's
+example CI profile sets `sandbox_mode = "read-only"` directly alongside `model` and
+`approval_policy`. The security reference (`.../docs/agent-approvals-security`) confirms
+`read-only` also turns network access off, same as the default.
+
+Two things this pass didn't chase down, flagged rather than fixed:
+
+- **Network access.** S1.6's dependency-CVE check runs the ecosystem's own auditor (`npm audit`,
+  `pip-audit`, etc.), and some of those need to reach a registry. If `sandbox_mode = "read-only"`
+  blocks that, S1.6 degrades to `NEEDS-REVIEW` under the sandboxed profile instead of running.
+  Not verified either way here.
+- **The `[profiles.name]` mechanism itself.** The same config reference says that as of Codex CLI
+  0.134.0, `--profile` no longer reads `[profiles.name]` tables out of `config.toml` — profile
+  settings are supposed to live in a separate `$CODEX_HOME/profile-name.config.toml` file with
+  top-level keys instead. `codex/profiles.toml` still uses `[profiles.name]` tables throughout,
+  appended into `config.toml`, unchanged by this pass. If `sandbox_mode` doesn't appear to take
+  effect, check your `codex-cli` version and `codex doctor` output before assuming the key is
+  wrong — the delivery mechanism may be what's out of date, not the value.
+
 ## Fix flow is Claude-first
 
 `vc-fixer` is generated into `codex/agents/vc-fixer.toml` like every other agent, but Codex has
