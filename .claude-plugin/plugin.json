@@ -7,6 +7,17 @@
     "name": "NickyStaffs29",
     "email": "nickstafford@me.com"
   },
+  "license": "MIT",
+  "homepage": "https://github.com/NickyStaffs29/Anti-Vibe-Check",
+  "repository": "https://github.com/NickyStaffs29/Anti-Vibe-Check",
+  "keywords": [
+    "security",
+    "audit",
+    "vibe-coding",
+    "supabase",
+    "codex",
+    "plugin"
+  ],
   "skills": [
     "./"
   ]

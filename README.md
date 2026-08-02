@@ -210,14 +210,15 @@ codex plugin add vibecheck@vibecheck
 Then set up the native Codex agents, which run the tiers at pinned reasoning effort:
 
 ```bash
+git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
 mkdir -p ~/.codex/vibecheck
-git clone https://github.com/NickyStaffs29/Anti-Vibe-Check /tmp/avc
-cp /tmp/avc/codex/agents/*.toml ~/.codex/agents/
-ln -s /tmp/avc/reference/checklist.md ~/.codex/vibecheck/checklist.md
-cat /tmp/avc/codex/profiles.toml >> ~/.codex/config.toml
+mkdir -p ~/.codex/agents
+cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
+ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
+cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
 
 mkdir -p ~/.codex/skills/vibecheck
-ln -s /tmp/avc/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
+ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
 ```
 
 The last two lines register `/vibecheck` as a Codex skill. The plugin install alone won't — the
@@ -314,3 +315,9 @@ structure, the evidence rules, and the verification pass were added on top.
 
 Built on the same delegation hierarchy as
 [Compute Squad](https://github.com/NickyStaffs29/Compute-Squad-Agent-Delegation).
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

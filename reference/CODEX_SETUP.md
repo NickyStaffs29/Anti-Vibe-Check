@@ -11,6 +11,7 @@ codex plugin add vibecheck@vibecheck
 
 git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
 mkdir -p ~/.codex/vibecheck
+mkdir -p ~/.codex/agents
 cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
 ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
 cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
