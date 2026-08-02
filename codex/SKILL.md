@@ -8,7 +8,7 @@ description: Run a 30-point security audit targeting the failure modes common to
 A 30-check security audit: five section auditors in parallel, then an adversarial verification
 pass. No agent in this pipeline holds `Write` or `Edit` — Bash stays instruction-bound to
 inspection, not sandboxed out of writing. (`vibecheck-auditor` and `vibecheck-verifier` do add a
-`sandbox_mode = "read-only"` platform constraint — see `codex/profiles.toml`.)
+`sandbox_mode = "read-only"` platform constraint — see `codex/profiles/vibecheck-auditor.config.toml` and `codex/profiles/vibecheck-verifier.config.toml`.)
 
 This is the **Codex** entry point. The Claude Code equivalent is `SKILL.md` at the repo root;
 both read the same checklist so the two stacks stay identical.
@@ -89,6 +89,6 @@ silently rewrites auth code.
   live vulnerabilities.
 - **Leaked credentials are fixed by rotation, not deletion.** Removing the line leaves the key
   live and still in git history.
-- **Effort is enforced by `codex/profiles.toml`, not by an agent noticing its own setting.** A
+- **Effort is enforced by `codex/profiles/*.config.toml`, not by an agent noticing its own setting.** A
   model can't reliably report its own reasoning-effort level. If a run looks underpowered, check
   that the profile loaded — don't expect an agent to flag it.

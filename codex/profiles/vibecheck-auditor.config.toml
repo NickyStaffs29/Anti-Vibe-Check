@@ -1,0 +1,4 @@
+# Copied to ~/.codex/vibecheck-auditor.config.toml by the Codex install instructions.
+model = "gpt-5.6-luna"
+model_reasoning_effort = "max"
+sandbox_mode = "read-only"

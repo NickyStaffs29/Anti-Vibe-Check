@@ -1,0 +1,4 @@
+# Copied to ~/.codex/vibecheck.config.toml by the Codex install instructions.
+# Top-level keys are required; Codex no longer reads [profiles.vibecheck] tables.
+model = "gpt-5.6-sol"
+model_reasoning_effort = "high"

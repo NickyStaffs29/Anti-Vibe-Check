@@ -98,7 +98,7 @@ def build():
         body = re.sub(r"^> \*\*Tier:\*\*.*?\n\n", "", body, flags=re.S | re.M)
         header = (
             f"RUN THIS AGENT ON `{model}` AT `{effort}` REASONING EFFORT. Max reasoning is off by "
-            f"default in Codex ({DEFAULTS[model]} for this model) — `codex/profiles.toml` is what "
+            f"default in Codex ({DEFAULTS[model]} for this model) — `codex/profiles/*.config.toml` is what "
             f"pins it; this header states the requirement, it does not enforce it.\n\n"
         )
         instructions = header + body.lstrip()
@@ -109,7 +109,7 @@ def build():
         # NOTE: Codex's agent schema accepts `model` but NOT `reasoning_effort` —
         # an unknown field makes it discard the whole file ("Ignoring malformed agent
         # role definition"). Verified with `codex doctor` on codex-cli 0.144.1.
-        # Effort is carried by codex/profiles.toml plus the directive in the
+        # Effort is carried by codex/profiles/*.config.toml plus the directive in the
         # instruction header below.
         desc_toml = desc.replace('"', '\\"')
         toml = (
