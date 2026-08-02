@@ -11,6 +11,17 @@ jobs:
       - name: Codex TOMLs match generator (no drift)
         run: python3 codex/build-agents.py --check
 
+      - name: Codex profiles use current overlay format
+        run: |
+          test -f codex/profiles/vibecheck.config.toml
+          test -f codex/profiles/vibecheck-manager.config.toml
+          test -f codex/profiles/vibecheck-auditor.config.toml
+          test -f codex/profiles/vibecheck-verifier.config.toml
+          if grep -R '^\[profiles\.' codex/profiles; then
+            echo "::error::legacy [profiles.name] table found in Codex profile files"
+            exit 1
+          fi
+
       - name: Validate plugin manifests are well-formed JSON
         run: |
           python3 -m json.tool .claude-plugin/plugin.json >/dev/null

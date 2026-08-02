@@ -10,20 +10,22 @@ codex plugin marketplace add https://github.com/NickyStaffs29/Anti-Vibe-Check
 codex plugin add vibecheck@vibecheck
 
 git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
-mkdir -p ~/.codex/vibecheck
-mkdir -p ~/.codex/agents
+mkdir -p ~/.codex/vibecheck ~/.codex/agents ~/.codex/skills/vibecheck
 cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
-ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
-cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
-
-mkdir -p ~/.codex/skills/vibecheck
-ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
+ln -sfn ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
+ln -sfn ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
+cp ~/src/anti-vibe-check/codex/profiles/*.config.toml ~/.codex/
 ```
 
 That last pair is what gives you `/vibecheck` in Codex. The plugin install alone does not — the
 root `SKILL.md` is written for Claude Code and uses `${CLAUDE_PLUGIN_ROOT}`, which Codex does not
 expand. `codex/SKILL.md` is the Codex-native entry point, pointing at the Codex agents, the
 Codex checklist path, and the tier profiles.
+
+The profile files are copied as `~/.codex/<profile>.config.toml`. Current Codex does not load
+legacy `[profiles.<name>]` tables appended to `~/.codex/config.toml`. If you ran an older version
+of these instructions, remove those legacy profile tables before running this block; do not
+append `codex/profiles.toml` again.
 
 Symlink the checklist rather than copying it. One file, both stacks — that's the property that
 keeps the Claude and Codex audits identical, and a copy silently breaks it the first time either
@@ -48,21 +50,22 @@ stack, pre-marks checks that can't apply, and hands a scoped work order to `vibe
 | `vc-verifier` — fresh instance | `gpt-5.6-sol` | `max` | low |
 
 The "Codex default" column is the point. Every one of these ships below the effort this pipeline
-wants, so an install that skips `profiles.toml` runs the whole audit underpowered — and it will
+wants, so an install that skips `codex/profiles/*.config.toml` runs the whole audit underpowered — and it will
 still produce a confident-looking report, which is the exact failure mode the tool exists to
 prevent.
 
 Each agent's `developer_instructions` opens by naming its required model and effort. That header
 states the requirement for whoever reads the file — it doesn't enforce anything at runtime, and a
 model can't reliably report its own reasoning-effort setting, so it isn't asked to. Enforcement is
-`profiles.toml`, below.
+`codex/profiles/*.config.toml`, below.
 
 Verified against `~/.codex/models_cache.json`: sol and terra support up to `ultra`, luna up to
 `max`.
 
 ## Sandbox mode on the auditor and verifier profiles
 
-`vibecheck-auditor` and `vibecheck-verifier` in `codex/profiles.toml` set `sandbox_mode =
+`vibecheck-auditor` and `vibecheck-verifier` in `codex/profiles/vibecheck-auditor.config.toml` and
+`codex/profiles/vibecheck-verifier.config.toml` set `sandbox_mode =
 "read-only"`. That's Codex's own OS-enforced sandbox, not an instruction — a command run under it
 is blocked from writing regardless of what the agent's prompt says, which is a stronger guarantee
 than "Bash is told not to mutate anything."
@@ -76,19 +79,18 @@ example CI profile sets `sandbox_mode = "read-only"` directly alongside `model` 
 `approval_policy`. The security reference (`.../docs/agent-approvals-security`) confirms
 `read-only` also turns network access off, same as the default.
 
-Two things this pass didn't chase down, flagged rather than fixed:
+One operational caveat:
 
 - **Network access.** S1.6's dependency-CVE check runs the ecosystem's own auditor (`npm audit`,
   `pip-audit`, etc.), and some of those need to reach a registry. If `sandbox_mode = "read-only"`
   blocks that, S1.6 degrades to `NEEDS-REVIEW` under the sandboxed profile instead of running.
   Not verified either way here.
-- **The `[profiles.name]` mechanism itself.** The same config reference says that as of Codex CLI
-  0.134.0, `--profile` no longer reads `[profiles.name]` tables out of `config.toml` — profile
-  settings are supposed to live in a separate `$CODEX_HOME/profile-name.config.toml` file with
-  top-level keys instead. `codex/profiles.toml` still uses `[profiles.name]` tables throughout,
-  appended into `config.toml`, unchanged by this pass. If `sandbox_mode` doesn't appear to take
-  effect, check your `codex-cli` version and `codex doctor` output before assuming the key is
-  wrong — the delivery mechanism may be what's out of date, not the value.
+
+The profile files use the current format: `~/.codex/vibecheck.config.toml`,
+`~/.codex/vibecheck-manager.config.toml`, `~/.codex/vibecheck-auditor.config.toml`, and
+`~/.codex/vibecheck-verifier.config.toml` each contain top-level keys. Do not append them to
+`config.toml` or convert them back into `[profiles.<name>]` tables. If an old install already
+has those tables in `config.toml`, remove the legacy sections before launching with `--profile`.
 
 ## Fix flow is Claude-first
 
@@ -121,7 +123,7 @@ Codex's agent schema accepts `model` but **not** `reasoning_effort`. An unknown 
 ignored — Codex discards the entire agent file with `Ignoring malformed agent role definition`.
 Verified with `codex doctor` on codex-cli 0.144.1.
 
-So the TOMLs set `model` only, and effort is carried by **`codex/profiles.toml`** — the real
+So the TOMLs set `model` only, and effort is carried by **`codex/profiles/*.config.toml`** — the real
 mechanism. `model_reasoning_effort` is a valid config key, so launching under a tier profile pins
 it. The instruction header in every agent also names the required model and effort, but that's
 documentation for whoever reads the file, not a check the agent can run on itself.

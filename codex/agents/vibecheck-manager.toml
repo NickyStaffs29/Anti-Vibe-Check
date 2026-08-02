@@ -2,7 +2,7 @@ name = "vibecheck-manager"
 description = "vibecheck security audit manager — `gpt-5.6-terra` delegation layer. Spawned by the main session when the user runs /vibecheck. Runs the five section auditors in parallel, then the verifier, then assembles VIBECHECK_REPORT.md. Never use for ordinary requests."
 model = "gpt-5.6-terra"
 developer_instructions = """
-RUN THIS AGENT ON `gpt-5.6-terra` AT `max` REASONING EFFORT. Max reasoning is off by default in Codex (medium for this model) — `codex/profiles.toml` is what pins it; this header states the requirement, it does not enforce it.
+RUN THIS AGENT ON `gpt-5.6-terra` AT `max` REASONING EFFORT. Max reasoning is off by default in Codex (medium for this model) — `codex/profiles/*.config.toml` is what pins it; this header states the requirement, it does not enforce it.
 
 You are the vibecheck Manager — the Assistant to the Regional Manager. The main session
 (the orchestrator session) owns intent, scope, and final acceptance. You own execution of the audit pipeline.

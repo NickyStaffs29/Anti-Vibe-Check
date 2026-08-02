@@ -33,7 +33,9 @@ install for you:
 
 ### Codex
 
-Codex reads Claude Code plugin marketplaces natively:
+Codex reads this git-hosted marketplace through its native plugin commands. The current CLI
+uses `marketplace upgrade` to refresh an already-registered marketplace and `plugin add` to
+install or reinstall a marketplace plugin:
 
 ```bash
 codex plugin marketplace add https://github.com/NickyStaffs29/Anti-Vibe-Check
@@ -46,13 +48,16 @@ Then set up the native Codex agents, which run the tiers at pinned reasoning eff
 git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
 mkdir -p ~/.codex/vibecheck ~/.codex/agents ~/.codex/skills/vibecheck
 cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
-ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
-ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
-cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
+ln -sfn ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
+ln -sfn ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
+cp ~/src/anti-vibe-check/codex/profiles/*.config.toml ~/.codex/
 ```
 
 The skill symlink is required — the root `SKILL.md` targets Claude Code and uses
-`${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand. Full detail:
+`${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand. The profile files are copied as
+`~/.codex/<profile>.config.toml`; current Codex does not load legacy `[profiles.<name>]` tables
+appended to `~/.codex/config.toml`. If you ran an older version of these instructions, remove
+those legacy profile tables before running this block. Full detail:
 [`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
 
 ## 2. Get updates automatically
@@ -70,21 +75,23 @@ claude plugin marketplace update vibecheck && claude plugin update vibecheck@vib
 
 ### Codex
 
-Paste this into Codex once:
+Paste this into Codex once. On macOS desktop, use the bundled absolute executable because a
+scheduled local task may not inherit your interactive shell's `PATH`:
 
-> Set up a recurring weekly automation on this device that runs
-> `codex plugin marketplace update vibecheck && codex plugin update vibecheck@vibecheck && git -C ~/src/anti-vibe-check pull && cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/`
-> so my vibecheck plugin and native agents stay current. Use the native scheduler for my OS and
-> confirm it's registered.
+> Set up a recurring weekly automation on this device using the native scheduler for my OS. Run
+> this exact sequence in a local project:
+> `git -C ~/src/anti-vibe-check pull --ff-only && /Applications/ChatGPT.app/Contents/Resources/codex plugin marketplace upgrade vibecheck && /Applications/ChatGPT.app/Contents/Resources/codex plugin add vibecheck@vibecheck && cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/ && cp ~/src/anti-vibe-check/codex/profiles/*.config.toml ~/.codex/`
+> If that bundled executable is not present, use the absolute path returned by `command -v codex`.
+> Confirm the weekly automation is registered and active.
 
 To update manually instead:
 
 ```bash
-codex plugin marketplace update vibecheck && codex plugin update vibecheck@vibecheck && git -C ~/src/anti-vibe-check pull && cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
+git -C ~/src/anti-vibe-check pull --ff-only && codex plugin marketplace upgrade vibecheck && codex plugin add vibecheck@vibecheck && cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/ && cp ~/src/anti-vibe-check/codex/profiles/*.config.toml ~/.codex/
 ```
 
-(The extra `git pull` + `cp` refreshes the native agent files; the checklist and skill symlinks
-update themselves.)
+(The extra `git pull` + `cp` refreshes the native agent and profile files; the checklist and skill
+symlinks update themselves.)
 
 ## 3. Run it
 
@@ -328,7 +335,7 @@ Two rules it won't break:
 
 The seven agents are built and committed at [`codex/agents/`](codex/agents), generated from the
 Claude agents by [`codex/build-agents.py`](codex/build-agents.py). Tier profiles are in
-[`codex/profiles.toml`](codex/profiles.toml); full setup in
+[`codex/profiles/`](codex/profiles); full setup in
 [`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
 
 One checklist, two stacks, no drift. A report from either side has the same format, so two runs
