@@ -45,11 +45,29 @@ plausible-looking PASS is most often wrong:
   but reads as correct.
 - **S5.5** — `decode()` where `verify()` belongs reads as correct to anyone skimming.
 
-**4. Check for omission.** Did any auditor skip a check ID, silently narrow its scope, or mark
+**4. Resolve every citation.** Open each cited `file:LINE` and confirm the file exists and the
+line says what was claimed. Auditors reconstruct plausible-looking paths from symbol names —
+`auth/foo.service.ts` when the file is at `services/foo.service.ts` — and a citation that does
+not resolve makes a correct finding unactionable. Correct the path if you can locate the real
+one; downgrade to `NEEDS-REVIEW` naming the defect if you cannot.
+
+**5. Re-rate every severity against what an attacker actually gets.** Inflated severities on
+unknowns are the most common calibration error in this pipeline, and they cost the reader's
+attention on the findings that matter. For each `NEEDS-REVIEW`, ask whether the auditor bounded
+the blast radius or just rated the category's worst case: did it enumerate what config actually
+exists before calling unread config CRITICAL? Did it audit the code consuming an unverifiable
+value before rating it? Lower any severity the evidence doesn't support, and say what bounded it.
+
+**6. Split any check with a provable half and an unverifiable half.** If the repo-side half is
+statically decidable, it gets its own verdict on its own evidence, and only the environment-side
+half stays `NEEDS-REVIEW`. A proven defect filed wholly as `NEEDS-REVIEW` reads as an open
+question and gets deprioritized.
+
+**7. Check for omission.** Did any auditor skip a check ID, silently narrow its scope, or mark
 something N/A that actually applies? Did anyone audit only part of the codebase? Missing
 coverage is itself a finding — report it as `NEEDS-REVIEW` on the affected check.
 
-**5. Sanity-check the N/As.** An N/A is correct when the capability genuinely doesn't exist in
+**8. Sanity-check the N/As.** An N/A is correct when the capability genuinely doesn't exist in
 this app. It is wrong when the auditor simply didn't find the code. Confirm the absence.
 
 ## Return format

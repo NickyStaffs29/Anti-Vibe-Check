@@ -26,9 +26,22 @@ These rules exist to make a lazy PASS structurally impossible.
 7. **Config that lives outside the repo** (Supabase dashboard RLS toggles, S3 bucket policy,
    Vercel env vars, Cloudflare WAF) cannot be confirmed from code alone. Mark it `NEEDS-REVIEW`
    and state the exact dashboard screen the human must check. Do not infer it from client code.
+8. **Cite only paths you actually opened.** Before writing any `file.ts:LINE` reference, confirm
+   the file exists at that path and the line says what you claim. Never reconstruct a path from
+   a symbol name, an import statement, or where a file "should" live — `auth/foo.service.ts` and
+   `services/foo.service.ts` are both plausible and only one is real. A finding whose citation
+   does not resolve cannot be acted on, and it costs the reader more trust than the finding was
+   worth. If you can name the defect but not locate it, say exactly that.
 
 ### Verdicts
 `PASS` · `FAIL` · `N/A` · `NEEDS-REVIEW`
+
+**Split a check that has both a provable half and an unverifiable half.** Report the repo-side
+half on its own evidence and the environment-side half as `NEEDS-REVIEW` — e.g. "FAIL: no rate
+limiter on any authenticated route (`index.ts:121-146`); NEEDS-REVIEW: whether an ingress/WAF
+layer limits ahead of the app." Filing the whole check as `NEEDS-REVIEW` because one half is
+unknowable buries a defect you proved. Filing it wholly as `FAIL` ignores a control that may
+exist. Neither is honest when you know one half for certain.
 
 ### Severity (assign to every FAIL)
 - **CRITICAL** — remote attacker reaches user data, money, or admin with no credentials.
@@ -38,6 +51,23 @@ These rules exist to make a lazy PASS structurally impossible.
 
 Each check lists a **default severity**. Raise or lower it based on what you actually find,
 and say why you moved it.
+
+**Bound the blast radius before you rate an unknown.** Severity describes what an attacker
+actually gets, not the worst thing the check's category could theoretically mean. Rating a
+`NEEDS-REVIEW` at its worst conceivable case is the most common calibration error, and it is
+always avoidable with one search:
+
+- Before rating unread config, enumerate what config actually exists. "A `VITE_*` var might hold
+  a server secret" is CRITICAL in the abstract; if the repo defines exactly one such var and it
+  is a Sentry DSN — a public ingest endpoint by design — the real ceiling is LOW.
+- Before rating an unverifiable value, audit the code that consumes it. An allowlist read from
+  an env var is a very different risk when the implementation is an exact-match `Set.has()` than
+  when it reflects the request origin. Verify the mechanism even when you can't see the value,
+  and say which one you checked.
+- State the ceiling you found and how you bounded it, in one line.
+
+Inflated severities are not a safe default. They train the reader to skim, and the finding that
+gets skimmed is the real CRITICAL sitting underneath.
 
 ---
 
