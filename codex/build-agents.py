@@ -6,9 +6,12 @@ equivalents so the two stacks can't drift — same instructions, same checklist,
 different manifest format.
 
 Run from anywhere:  python3 codex/build-agents.py
+Verify without writing:  python3 codex/build-agents.py --check
 """
+import difflib
 import pathlib
 import re
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "agents"
@@ -36,10 +39,18 @@ TERMS = [
     ("Task call", "sub-agent spawn"),
     ("`effort: 'max'`", "`model_reasoning_effort = \"max\"`"),
     ("effort: 'max'", 'the `vibecheck-auditor` profile (max reasoning)'),
+    # Backtick-consuming variant first (longest match) so the source's own
+    # backticks around `effort: 'high'` don't survive to wrap the replacement
+    # and produce nested backticks.
+    ("`effort: 'high'`", 'the `vibecheck-verifier` profile (high reasoning)'),
     ("effort: 'high'", 'the `vibecheck-verifier` profile (high reasoning)'),
     ("on Opus, still at `max`", "on `gpt-5.6-terra`, still at max reasoning"),
     ("spawn them on Opus", "spawn them on `gpt-5.6-terra`"),
-    ("Spawn `vc-verifier` on Opus", "Spawn `vc-verifier` on `gpt-5.6-sol`"),
+    # Matches the literal markdown emphasis in agents/vibecheck-manager.md
+    # ("**4. Spawn `vc-verifier`** on Opus ...") — the closing `**` sits
+    # between the backtick and " on Opus", so a rule without it never
+    # matches and the generic "Opus" -> terra rule fires instead.
+    ("Spawn `vc-verifier`** on Opus", "Spawn `vc-verifier`** on `gpt-5.6-sol`"),
     ("Five Sonnet auditors", "Five Luna auditors"),
     ("one Opus pass", "one Sol pass"),
     ("(Fable)", "(the orchestrator session)"),
@@ -61,13 +72,16 @@ def parse(path):
         raise SystemExit(f"{path.name}: no frontmatter")
     fm, body = m.group(1), m.group(2).strip()
     name = re.search(r"^name:\s*(.+)$", fm, re.M).group(1).strip()
-    desc = re.search(r"^description:\s*(.+?)(?=\n[a-z_]+:|\Z)", fm, re.M | re.S)
-    desc = " ".join(desc.group(1).split())
+    desc_match = re.search(r"^description:\s*(.+?)(?=\n[a-z_]+:|\Z)", fm, re.M | re.S)
+    if not desc_match:
+        raise SystemExit(f"{path.name}: missing frontmatter 'description'")
+    desc = " ".join(desc_match.group(1).split())
     return name, desc, body
 
 
-def main():
-    OUT.mkdir(parents=True, exist_ok=True)
+def build():
+    """Regenerate every agent TOML in memory. Returns {filename: (toml_text, model, effort)}."""
+    out = {}
     for src in sorted(SRC.glob("*.md")):
         name, desc, body = parse(src)
         if name not in TIERS:
@@ -106,14 +120,53 @@ def main():
         # role definition"). Verified with `codex doctor` on codex-cli 0.144.1.
         # Effort is carried by codex/profiles.toml plus the directive in the
         # instruction header below.
+        desc_toml = desc.replace('"', '\\"')
         toml = (
             f'name = "{name}"\n'
-            f'description = "{desc}"\n'
+            f'description = "{desc_toml}"\n'
             f'model = "{model}"\n'
             f'developer_instructions = """\n{instructions}"""\n'
         )
-        (OUT / f"{name}.toml").write_text(toml)
-        print(f"wrote {name}.toml  ({model} @ {effort})")
+        out[f"{name}.toml"] = (toml, model, effort)
+    return out
+
+
+def check(agents):
+    """Compare in-memory regeneration against the committed files in codex/agents/.
+    Writes nothing. Returns True if everything matches."""
+    mismatches = []
+    for fname, (content, _model, _effort) in agents.items():
+        path = OUT / fname
+        existing = path.read_text() if path.exists() else None
+        if existing != content:
+            mismatches.append((fname, existing, content))
+
+    if not mismatches:
+        print(f"--check: {len(agents)} file(s) in sync")
+        return True
+
+    print(f"--check: {len(mismatches)} file(s) out of sync with codex/build-agents.py")
+    for fname, existing, content in mismatches:
+        print(f"\n--- {fname} ---")
+        existing_lines = (existing or "").splitlines(keepends=True)
+        content_lines = content.splitlines(keepends=True)
+        sys.stdout.writelines(difflib.unified_diff(
+            existing_lines, content_lines,
+            fromfile=f"committed/{fname}", tofile=f"regenerated/{fname}",
+        ))
+    return False
+
+
+def main():
+    agents = build()
+
+    if "--check" in sys.argv:
+        sys.exit(0 if check(agents) else 1)
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    for fname, (content, model, effort) in agents.items():
+        (OUT / fname).write_text(content)
+        print(f"wrote {fname}  ({model} @ {effort})")
 
 
 if __name__ == "__main__":
