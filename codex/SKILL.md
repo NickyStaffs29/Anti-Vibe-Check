@@ -89,5 +89,6 @@ silently rewrites auth code.
   live vulnerabilities.
 - **Leaked credentials are fixed by rotation, not deletion.** Removing the line leaves the key
   live and still in git history.
-- If any agent reports it was spawned below its required effort, say so in the final report. A
-  degraded run that looks confident is the failure mode this tool exists to prevent.
+- **Effort is enforced by `codex/profiles.toml`, not by an agent noticing its own setting.** A
+  model can't reliably report its own reasoning-effort level. If a run looks underpowered, check
+  that the profile loaded — don't expect an agent to flag it.
