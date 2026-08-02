@@ -5,7 +5,12 @@ Read-only end to end: nothing in the audit pipeline can edit your source.
 
 ---
 
-## Install (Claude Code)
+Every step below comes in two flavors, always in the same order: **Claude Code first, Codex
+right after.** Pick your stack and follow just those blocks.
+
+## 1. Install
+
+### Claude Code
 
 Run these two commands in your terminal:
 
@@ -26,42 +31,7 @@ install for you:
 > Add the Claude Code plugin marketplace `NickyStaffs29/Anti-Vibe-Check`, install the plugin
 > `vibecheck@vibecheck` from it, and confirm `/vibecheck` is available.
 
-## Get updates automatically (weekly)
-
-Paste this into Claude Code once and it will set up a recurring weekly job on your device — you
-never have to think about updates again:
-
-> Set up a recurring weekly automation on this device that runs
-> `claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck`
-> so my vibecheck plugin stays current. Use the native scheduler for my OS and confirm it's
-> registered.
-
-To update manually instead:
-
-```bash
-claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck
-```
-
-## Run it
-
-```bash
-/vibecheck                    # audit the current directory
-/vibecheck ~/code/my-app      # audit a specific repo
-/vibecheck --deep             # section auditors on Opus instead of Sonnet
-/vibecheck --section S2       # one section, plus verification
-```
-
-Natural language works too — "is my app secure", "did I leak any keys", "can someone see other
-users' data" all trigger it. Findings land in `VIBECHECK_REPORT.md` at the repo root
-(auto-gitignored). Then fix them:
-
-```bash
-/vibecheck-fix                       # CRITICAL tier only (default)
-/vibecheck-fix --tier HIGH
-/vibecheck-fix --only S2.3,S4.1
-```
-
-## Install (Codex)
+### Codex
 
 Codex reads Claude Code plugin marketplaces natively:
 
@@ -82,13 +52,76 @@ cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
 ```
 
 The skill symlink is required — the root `SKILL.md` targets Claude Code and uses
-`${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand. Run with:
+`${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand. Full detail:
+[`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
+
+## 2. Get updates automatically (weekly)
+
+### Claude Code
+
+Paste this into Claude Code once and it will set up a recurring weekly job on your device — you
+never have to think about updates again:
+
+> Set up a recurring weekly automation on this device that runs
+> `claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck`
+> so my vibecheck plugin stays current. Use the native scheduler for my OS and confirm it's
+> registered.
+
+To update manually instead:
+
+```bash
+claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck
+```
+
+### Codex
+
+Paste this into Codex once:
+
+> Set up a recurring weekly automation on this device that runs
+> `codex plugin marketplace update vibecheck && codex plugin update vibecheck@vibecheck && git -C ~/src/anti-vibe-check pull && cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/`
+> so my vibecheck plugin and native agents stay current. Use the native scheduler for my OS and
+> confirm it's registered.
+
+To update manually instead:
+
+```bash
+codex plugin marketplace update vibecheck && codex plugin update vibecheck@vibecheck && git -C ~/src/anti-vibe-check pull && cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
+```
+
+(The extra `git pull` + `cp` refreshes the native agent files; the checklist and skill symlinks
+update themselves.)
+
+## 3. Run it
+
+### Claude Code
+
+```bash
+/vibecheck                    # audit the current directory
+/vibecheck ~/code/my-app      # audit a specific repo
+/vibecheck --deep             # section auditors on Opus instead of Sonnet
+/vibecheck --section S2       # one section, plus verification
+```
+
+Natural language works too — "is my app secure", "did I leak any keys", "can someone see other
+users' data" all trigger it. Findings land in `VIBECHECK_REPORT.md` at the repo root
+(auto-gitignored). Then fix them:
+
+```bash
+/vibecheck-fix                       # CRITICAL tier only (default)
+/vibecheck-fix --tier HIGH
+/vibecheck-fix --only S2.3,S4.1
+```
+
+### Codex
+
+Run with the orchestrator profile:
 
 ```bash
 codex --profile vibecheck "Run a vibecheck security audit on this repo."
 ```
 
-Full Codex setup detail: [`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
+`/vibecheck` works inside a Codex session too once the skill symlink from step 1 is in place.
+The report format is identical to the Claude Code side, so runs from either stack are diffable.
 
 ---
 
