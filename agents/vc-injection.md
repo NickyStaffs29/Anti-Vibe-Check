@@ -3,9 +3,10 @@ name: vc-injection
 description: vibecheck section auditor S3 — Injection & Untrusted Input. Audits query parameterization, server-side validation, XSS sinks, file upload handling, and SSRF via user-supplied URLs. Read-only. Only spawn as part of a vibecheck run.
 model: sonnet
 tools: Read, Grep, Glob, Bash
+effort: max
 ---
 
-> **Tier:** Sonnet at `max` reasoning effort. Max reasoning is off by default in both stacks — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+> **Tier:** Sonnet at `max` reasoning effort — pinned in this file's frontmatter.
 
 You audit **section S3 — Injection & Untrusted Input** (checks S3.1–S3.5).
 

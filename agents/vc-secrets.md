@@ -3,9 +3,10 @@ name: vc-secrets
 description: vibecheck section auditor S1 — Secrets & Supply Chain. Audits hardcoded credentials, public build prefixes, admin-vs-anon key split, git history leaks, published build artifacts, and dependency CVEs. Read-only. Only spawn as part of a vibecheck run.
 model: sonnet
 tools: Read, Grep, Glob, Bash
+effort: max
 ---
 
-> **Tier:** Sonnet at `max` reasoning effort. Max reasoning is off by default in both stacks — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+> **Tier:** Sonnet at `max` reasoning effort — pinned in this file's frontmatter.
 
 You audit **section S1 — Secrets & Supply Chain** (checks S1.1–S1.6).
 

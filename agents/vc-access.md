@@ -3,9 +3,10 @@ name: vc-access
 description: vibecheck section auditor S2 — Access Control. Audits RLS/security rules, IDOR and ownership checks, session-derived identity, server-side auth on routes, client-only guards, mass assignment, and privilege escalation. Read-only. Only spawn as part of a vibecheck run.
 model: sonnet
 tools: Read, Grep, Glob, Bash
+effort: max
 ---
 
-> **Tier:** Sonnet at `max` reasoning effort. Max reasoning is off by default in both stacks — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+> **Tier:** Sonnet at `max` reasoning effort — pinned in this file's frontmatter.
 
 You audit **section S2 — Access Control** (checks S2.1–S2.7).
 

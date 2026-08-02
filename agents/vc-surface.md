@@ -3,9 +3,10 @@ name: vc-surface
 description: vibecheck section auditor S5 — Surface & Exposure. Audits admin/debug endpoints, storage bucket policies, CORS, CSRF, session and JWT handling, security headers, error leakage, and security logging. Read-only. Only spawn as part of a vibecheck run.
 model: sonnet
 tools: Read, Grep, Glob, Bash
+effort: max
 ---
 
-> **Tier:** Sonnet at `max` reasoning effort. Max reasoning is off by default in both stacks — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+> **Tier:** Sonnet at `max` reasoning effort — pinned in this file's frontmatter.
 
 You audit **section S5 — Surface & Exposure** (checks S5.1–S5.8).
 

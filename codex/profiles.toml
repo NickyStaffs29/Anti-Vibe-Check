@@ -7,6 +7,13 @@
 # Verified against ~/.codex/models_cache.json: sol/terra support up to `ultra`,
 # luna up to `max`.
 #
+# sandbox_mode = "read-only" on the auditor and verifier profiles below is Codex's own
+# filesystem/network sandbox, not an instruction — it blocks writes at the platform level
+# no matter what a command tries to do. Verified against the current Codex CLI config
+# reference (developers.openai.com/codex/config-reference): sandbox_mode accepts
+# read-only | workspace-write | danger-full-access. Full citation, plus one open caveat
+# about the [profiles.name] mechanism itself, is in reference/CODEX_SETUP.md.
+#
 # Usage:  codex --profile vibecheck "/vibecheck"
 
 # Tier 1 — orchestrator. Recon, scope, acceptance.
@@ -25,9 +32,13 @@ model_reasoning_effort = "max"
 [profiles.vibecheck-auditor]
 model = "gpt-5.6-luna"
 model_reasoning_effort = "max"
+sandbox_mode = "read-only"
 
 # Verifier — a FRESH Sol instance. Its value comes from not having been in the room when
-# the findings were formed, so never reuse an auditor session for this.
+# the findings were formed, so never reuse an auditor session for this. It is also the last
+# line against a false PASS, the one error class this pipeline exists to catch, so it is the
+# stage most entitled to max reasoning — sol supports up to `ultra` (see the file header).
 [profiles.vibecheck-verifier]
 model = "gpt-5.6-sol"
-model_reasoning_effort = "high"
+model_reasoning_effort = "max"
+sandbox_mode = "read-only"

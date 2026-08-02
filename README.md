@@ -78,16 +78,20 @@ you (main session)              Fable / gpt-5.6-sol          @ high
         ├─→ vc-surface          S5  Surface & Exposure            8 checks  ┘
         │                       Sonnet / gpt-5.6-luna        @ max
         │
-        └─→ vc-verifier         Opus / gpt-5.6-sol  FRESH   @ high
+        └─→ vc-verifier         Opus / gpt-5.6-sol  FRESH   @ max
               Refutes every FAIL. Re-audits every unevidenced PASS.
 ```
 
 The five sections run **in parallel** — they're independent, so serializing them costs
 wall-clock and buys nothing.
 
-Section auditors have **no write capability at all**. They return findings in their final
-message and the manager writes the report. Read-only is structural rather than a promise, and it
-removes the write race that parallel sections would otherwise have.
+Section auditors hold **no `Write` or `Edit` tools**. They return findings in their final message
+and the manager writes the report, which removes the write race that parallel sections would
+otherwise have. Bash stays available — S1.4's git-history check and S1.6's dependency audit both
+run through it — and it's kept to inspection **by instruction, not by sandbox**: nothing stops a
+Bash call from mutating the repo except the agent's own instructions. A `PreToolUse` hook could
+enforce that boundary at the platform level instead; that's a future hardening step, not something
+this pass builds.
 
 ### Model tiers
 
@@ -98,11 +102,13 @@ Two knobs matter here, and the second one is the one people miss.
 | Orchestrator — recon, scope, acceptance | Fable | `gpt-5.6-sol` | high |
 | Manager — scoping and routing | Opus | `gpt-5.6-terra` | `max` |
 | Section auditors ×5 | Sonnet | `gpt-5.6-luna` | `max` |
-| Verifier — **fresh instance** | Opus | `gpt-5.6-sol` | high |
+| Verifier — **fresh instance** | Opus | `gpt-5.6-sol` | `max` |
 
 **Max reasoning effort is off by default in both stacks.** Codex ships `sol=low`, `terra=medium`,
-`luna=medium`; Claude Code takes `effort` as a spawn parameter that nothing sets for you. An audit
-run without pinning it is running every agent below its capability.
+`luna=medium`. On the Claude Code side, each agent pins its own tier with an `effort` key in its
+frontmatter, which overrides the session's effort level for as long as that agent runs — that's
+the mechanism, not a parameter anyone passes at spawn time. An audit run on an agent file missing
+that key is running below its capability.
 
 This matters more than the model choice. A cheap model at max reasoning substantially outperforms
 the same model at its default, which is the entire economic argument for this pipeline: five
@@ -111,7 +117,9 @@ because section auditing is mechanical evidence-gathering where thoroughness bea
 
 The verifier is deliberately a **fresh top-tier instance** — never a reused auditor. Its value
 comes from not having been in the room when the findings were formed. A reviewer that inherits
-the auditor's framing just re-derives the auditor's conclusions.
+the auditor's framing just re-derives the auditor's conclusions. It's also the last line against
+a false PASS — the one error class that gets people breached — which makes it the stage most
+entitled to max reasoning effort.
 
 Tiering follows [@daniel_mac8's `sol-advisor` pattern](https://x.com/daniel_mac8/status/2083607027813662810):
 frontier model orchestrates, cheap model at max reasoning implements routine work, mid model at
@@ -204,14 +212,15 @@ codex plugin add vibecheck@vibecheck
 Then set up the native Codex agents, which run the tiers at pinned reasoning effort:
 
 ```bash
+git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
 mkdir -p ~/.codex/vibecheck
-git clone https://github.com/NickyStaffs29/Anti-Vibe-Check /tmp/avc
-cp /tmp/avc/codex/agents/*.toml ~/.codex/agents/
-ln -s /tmp/avc/reference/checklist.md ~/.codex/vibecheck/checklist.md
-cat /tmp/avc/codex/profiles.toml >> ~/.codex/config.toml
+mkdir -p ~/.codex/agents
+cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
+ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
+cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
 
 mkdir -p ~/.codex/skills/vibecheck
-ln -s /tmp/avc/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
+ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
 ```
 
 The last two lines register `/vibecheck` as a Codex skill. The plugin install alone won't — the
@@ -308,3 +317,9 @@ structure, the evidence rules, and the verification pass were added on top.
 
 Built on the same delegation hierarchy as
 [Compute Squad](https://github.com/NickyStaffs29/Compute-Squad-Agent-Delegation).
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

@@ -6,7 +6,9 @@ description: Run a 30-point security audit targeting the failure modes common to
 # vibecheck
 
 A 30-check security audit: five section auditors in parallel, then an adversarial verification
-pass. Read-only end to end — nothing in this pipeline edits source.
+pass. No agent in this pipeline holds `Write` or `Edit` — Bash stays instruction-bound to
+inspection, not sandboxed out of writing. (`vibecheck-auditor` and `vibecheck-verifier` do add a
+`sandbox_mode = "read-only"` platform constraint — see `codex/profiles.toml`.)
 
 This is the **Codex** entry point. The Claude Code equivalent is `SKILL.md` at the repo root;
 both read the same checklist so the two stacks stay identical.
@@ -25,7 +27,7 @@ on `gpt-5.6-terra` instead of `gpt-5.6-luna` · `--section S2` for one section p
 | `vc-injection` | `gpt-5.6-luna` | `max` | S3 Injection & Untrusted Input — 5 checks |
 | `vc-abuse` | `gpt-5.6-luna` | `max` | S4 Abuse & Money — 4 checks |
 | `vc-surface` | `gpt-5.6-luna` | `max` | S5 Surface & Exposure — 8 checks |
-| `vc-verifier` | `gpt-5.6-sol` **fresh** | high | Refutes every FAIL, re-audits every unevidenced PASS |
+| `vc-verifier` | `gpt-5.6-sol` **fresh** | `max` | Refutes every FAIL, re-audits every unevidenced PASS |
 
 **Effort is the load-bearing column.** Codex defaults are `sol=low`, `terra=medium`,
 `luna=medium` — max reasoning is off unless something turns it on. A cheap model at max reasoning
@@ -87,5 +89,6 @@ silently rewrites auth code.
   live vulnerabilities.
 - **Leaked credentials are fixed by rotation, not deletion.** Removing the line leaves the key
   live and still in git history.
-- If any agent reports it was spawned below its required effort, say so in the final report. A
-  degraded run that looks confident is the failure mode this tool exists to prevent.
+- **Effort is enforced by `codex/profiles.toml`, not by an agent noticing its own setting.** A
+  model can't reliably report its own reasoning-effort level. If a run looks underpowered, check
+  that the profile loaded — don't expect an agent to flag it.

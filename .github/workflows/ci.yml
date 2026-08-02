@@ -1,0 +1,31 @@
+name: ci
+
+"on": [push, pull_request]
+
+jobs:
+  drift-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Codex TOMLs match generator (no drift)
+        run: python3 codex/build-agents.py --check
+
+      - name: Validate plugin manifests are well-formed JSON
+        run: |
+          python3 -m json.tool .claude-plugin/plugin.json >/dev/null
+          python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
+
+      - name: Generator module compiles
+        run: python3 -m py_compile codex/build-agents.py
+
+      - name: Grep gate against known TOML regressions (F2)
+        run: |
+          if grep -rn '`the `' codex/agents/*.toml; then
+            echo "::error::nested-backtick artifact found in generated TOML"
+            exit 1
+          fi
+          if grep -n 'vc-verifier' codex/agents/*.toml | grep 'gpt-5.6-terra'; then
+            echo "::error::vc-verifier spawn line names gpt-5.6-terra"
+            exit 1
+          fi
