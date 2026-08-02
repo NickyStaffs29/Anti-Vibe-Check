@@ -29,6 +29,10 @@ max reasoning substantially outperforms the same model at its default — that t
 five parallel auditors cheaper and more thorough than one expensive pass. Section auditing is
 mechanical evidence-gathering, where thoroughness beats sophistication.
 
+Each agent pins its own tier with an `effort` key in its frontmatter, which overrides the
+session's effort level for as long as that agent runs. That's the actual mechanism — nothing
+needs to be passed at spawn time.
+
 The 30 checks live in `${CLAUDE_PLUGIN_ROOT}/reference/checklist.md` — one file, read by every
 agent. No agent restates a check, so the Claude and Codex implementations cannot drift apart.
 
@@ -61,11 +65,10 @@ An INCONCLUSIVE result is honest and it is not a clean bill of health — but ca
 one `ls` instead of seven agents.
 
 
-**2. Spawn `vibecheck-manager`** on Opus at `effort: 'max'`, with a self-contained work order:
-repo path, your recon findings, pre-marked N/A checks with reasons, and any `--deep` /
-`--section` flag. It spawns the five
-section auditors in parallel, then `vc-verifier`, then assembles `VIBECHECK_REPORT.md` and adds
-it to `.gitignore`.
+**2. Spawn `vibecheck-manager`**, with a self-contained work order: repo path, your recon
+findings, pre-marked N/A checks with reasons, and any `--deep` / `--section` flag. Its
+frontmatter pins Opus at `max` effort. It spawns the five section auditors in parallel, then
+`vc-verifier`, then assembles `VIBECHECK_REPORT.md` and adds it to `.gitignore`.
 
 **3. Accept the result.** Report to the user: counts by verdict across all 30, every CRITICAL in
 one line each with its `file:line`, the single highest-priority fix and why it is first, and any

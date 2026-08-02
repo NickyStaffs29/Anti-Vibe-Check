@@ -37,14 +37,6 @@ TERMS = [
     ("five Task calls", "five parallel sub-agent spawns"),
     ("Task calls", "sub-agent spawns"),
     ("Task call", "sub-agent spawn"),
-    ("`effort: 'max'`", "`model_reasoning_effort = \"max\"`"),
-    ("effort: 'max'", 'the `vibecheck-auditor` profile (max reasoning)'),
-    # Backtick-consuming variant first (longest match) so the source's own
-    # backticks around `effort: 'high'` don't survive to wrap the replacement
-    # and produce nested backticks.
-    ("`effort: 'high'`", 'the `vibecheck-verifier` profile (high reasoning)'),
-    ("effort: 'high'", 'the `vibecheck-verifier` profile (high reasoning)'),
-    ("on Opus, still at `max`", "on `gpt-5.6-terra`, still at max reasoning"),
     ("spawn them on Opus", "spawn them on `gpt-5.6-terra`"),
     # Matches the literal markdown emphasis in agents/vibecheck-manager.md
     # ("**4. Spawn `vc-verifier`** on Opus ...") — the closing `**` sits
@@ -106,9 +98,8 @@ def build():
         body = re.sub(r"^> \*\*Tier:\*\*.*?\n\n", "", body, flags=re.S | re.M)
         header = (
             f"RUN THIS AGENT ON `{model}` AT `{effort}` REASONING EFFORT. Max reasoning is off by "
-            f"default in Codex ({DEFAULTS[model]} for this model) — if you were spawned without it, "
-            f"say so in your first line of output and continue. A section audited at default "
-            f"reasoning is worth less than one that says it was.\n\n"
+            f"default in Codex ({DEFAULTS[model]} for this model) — `codex/profiles.toml` is what "
+            f"pins it; this header states the requirement, it does not enforce it.\n\n"
         )
         instructions = header + body.lstrip()
 

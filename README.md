@@ -101,8 +101,10 @@ Two knobs matter here, and the second one is the one people miss.
 | Verifier — **fresh instance** | Opus | `gpt-5.6-sol` | high |
 
 **Max reasoning effort is off by default in both stacks.** Codex ships `sol=low`, `terra=medium`,
-`luna=medium`; Claude Code takes `effort` as a spawn parameter that nothing sets for you. An audit
-run without pinning it is running every agent below its capability.
+`luna=medium`. On the Claude Code side, each agent pins its own tier with an `effort` key in its
+frontmatter, which overrides the session's effort level for as long as that agent runs — that's
+the mechanism, not a parameter anyone passes at spawn time. An audit run on an agent file missing
+that key is running below its capability.
 
 This matters more than the model choice. A cheap model at max reasoning substantially outperforms
 the same model at its default, which is the entire economic argument for this pipeline: five

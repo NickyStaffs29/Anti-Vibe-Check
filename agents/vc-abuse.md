@@ -3,9 +3,10 @@ name: vc-abuse
 description: vibecheck section auditor S4 — Abuse & Money. Audits rate limiting, client-supplied prices and entitlements, webhook signature verification, and unauthenticated or uncapped paid/LLM endpoints. Read-only. Only spawn as part of a vibecheck run.
 model: sonnet
 tools: Read, Grep, Glob, Bash
+effort: max
 ---
 
-> **Tier:** Sonnet at `max` reasoning effort. Max reasoning is off by default in both stacks — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+> **Tier:** Sonnet at `max` reasoning effort — pinned in this file's frontmatter.
 
 You audit **section S4 — Abuse & Money** (checks S4.1–S4.4).
 

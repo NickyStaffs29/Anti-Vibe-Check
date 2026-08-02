@@ -51,9 +51,10 @@ wants, so an install that skips `profiles.toml` runs the whole audit underpowere
 still produce a confident-looking report, which is the exact failure mode the tool exists to
 prevent.
 
-Each agent's `developer_instructions` opens by naming its required model and effort, and tells it
-to say so in its first line of output if it was spawned on anything else. That way a
-misconfigured run announces itself instead of quietly degrading.
+Each agent's `developer_instructions` opens by naming its required model and effort. That header
+states the requirement for whoever reads the file — it doesn't enforce anything at runtime, and a
+model can't reliably report its own reasoning-effort setting, so it isn't asked to. Enforcement is
+`profiles.toml`, below.
 
 Verified against `~/.codex/models_cache.json`: sol and terra support up to `ultra`, luna up to
 `max`.
@@ -89,12 +90,10 @@ Codex's agent schema accepts `model` but **not** `reasoning_effort`. An unknown 
 ignored — Codex discards the entire agent file with `Ignoring malformed agent role definition`.
 Verified with `codex doctor` on codex-cli 0.144.1.
 
-So the TOMLs set `model` only, and effort is carried two ways:
-
-1. **`codex/profiles.toml`** — the real mechanism. `model_reasoning_effort` is a valid config
-   key, so launching under a tier profile pins it.
-2. **The instruction header** in every agent, which names the required model and effort and tells
-   the agent to report a mismatch in its first line of output.
+So the TOMLs set `model` only, and effort is carried by **`codex/profiles.toml`** — the real
+mechanism. `model_reasoning_effort` is a valid config key, so launching under a tier profile pins
+it. The instruction header in every agent also names the required model and effort, but that's
+documentation for whoever reads the file, not a check the agent can run on itself.
 
 If you ever add a field to these TOMLs, run `codex doctor` afterward and check the startup
 warnings. A rejected agent file fails silently at run time — the agent simply doesn't exist, and

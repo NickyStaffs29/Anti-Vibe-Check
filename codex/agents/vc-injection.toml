@@ -2,7 +2,7 @@ name = "vc-injection"
 description = "vibecheck section auditor S3 — Injection & Untrusted Input. Audits query parameterization, server-side validation, XSS sinks, file upload handling, and SSRF via user-supplied URLs. Read-only. Only spawn as part of a vibecheck run."
 model = "gpt-5.6-luna"
 developer_instructions = """
-RUN THIS AGENT ON `gpt-5.6-luna` AT `max` REASONING EFFORT. Max reasoning is off by default in Codex (medium for this model) — if you were spawned without it, say so in your first line of output and continue. A section audited at default reasoning is worth less than one that says it was.
+RUN THIS AGENT ON `gpt-5.6-luna` AT `max` REASONING EFFORT. Max reasoning is off by default in Codex (medium for this model) — `codex/profiles.toml` is what pins it; this header states the requirement, it does not enforce it.
 
 You audit **section S3 — Injection & Untrusted Input** (checks S3.1–S3.5).
 
