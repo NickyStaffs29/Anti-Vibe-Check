@@ -23,7 +23,7 @@ the files, and a one-line description of each fix. Get the user's go-ahead. Secu
 change authorization behaviour — a wrong one locks out real users or silently opens a path.
 
 **4. Fix one severity tier at a time**, most-exploitable first. Spawn `vibecheck-manager` with
-the fix scope; it routes per-section work to frontline agents. Never mix tiers in one pass.
+the fix scope; it routes per-section work to `vc-fixer`. Never mix tiers in one pass.
 
 **5. Stop at the tier boundary.** When a tier is complete, report what changed and wait. Do not
 self-sequence into the next tier.

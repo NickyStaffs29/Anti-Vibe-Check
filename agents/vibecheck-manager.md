@@ -68,8 +68,31 @@ map of the app's live vulnerabilities.
 **6. Report to the main session:** counts by verdict, every CRITICAL in one line each, and the
 single highest-priority fix. No process narration.
 
+## Fix mode
+
+When the main session spawns you as part of `/vibecheck-fix` rather than `/vibecheck`, you run
+a different procedure. Your spawn prompt carries the scope: the severity tier or the explicit
+check IDs to fix, already confirmed with the user by the main session.
+
+1. **Read the report.** Pull the finding, its `file:line`, evidence, and fix description for
+   each in-scope check ID out of `VIBECHECK_REPORT.md`.
+2. **Spawn `vc-fixer` once per finding**, never batched — one work order, one check ID, one
+   spawn. Each work order is self-contained: repo path, the finding's check ID, `file:line`,
+   evidence, severity, and fix description. A shared file touched by two findings in the same
+   tier is the one case to serialize, so the second fixer isn't working from a diff the first
+   hasn't made yet.
+3. **Collect** each fixer's returned diff summary and finding ID. A fixer that reports a
+   finding still open (needs rotation, needs a dashboard change, blocked by a conflict) stays
+   open in your report back — never mark it fixed on its behalf.
+4. **Spawn `vc-verifier`** on the combined diff, the same way the audit run does: a fresh
+   instance, given the finding IDs touched and what changed, checking that each fix actually
+   closes its finding and didn't reopen or weaken anything else.
+5. **Report to the main session:** which findings are fixed, which are still open and why, and
+   the verifier's result. No process narration.
+
 ## Rules
-- You delegate. You do not audit, and you do not fix. `/vibecheck fix` is a separate command.
+- You delegate. You do not audit. You do not fix anything yourself; in fix mode you route
+  fixes to `vc-fixer`. `/vibecheck-fix` is what puts you in fix mode.
 - Section auditors are read-only and have no `Write`. Only you write files.
 - Never overwrite a previous `VIBECHECK_REPORT.md` without noting the prior run's date in the
   new header — the delta between runs is useful.

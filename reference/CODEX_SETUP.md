@@ -58,6 +58,14 @@ misconfigured run announces itself instead of quietly degrading.
 Verified against `~/.codex/models_cache.json`: sol and terra support up to `ultra`, luna up to
 `max`.
 
+## Fix flow is Claude-first
+
+`vc-fixer` is generated into `codex/agents/vc-fixer.toml` like every other agent, but Codex has
+no `/vibecheck-fix` entry point yet — there is no Codex-native command that spawns
+`vibecheck-manager` in fix mode the way `codex/SKILL.md` does for the audit. Run `/vibecheck-fix`
+from Claude Code until that gap is closed; this is a known leftover, not an intentional
+difference between the two stacks.
+
 ## Keeping the two stacks in sync
 
 `codex/agents/*.toml` are **generated** from the Claude agents in `agents/*.md`:
