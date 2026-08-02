@@ -1,15 +1,104 @@
 # Anti-Vibe-Check
 
 A 30-check security audit for vibe-coded apps — and one that verifies its own findings.
+Read-only end to end: nothing in the audit pipeline can edit your source.
+
+---
+
+## Install (Claude Code)
+
+Run these two commands in your terminal:
+
+```bash
+claude plugin marketplace add NickyStaffs29/Anti-Vibe-Check
+```
+
+```bash
+claude plugin install vibecheck@vibecheck
+```
+
+Restart Claude Code (or run `/reload-plugins`). That's the whole install — the plugin brings all
+seven agents, the `/vibecheck` skill, and the `/vibecheck-fix` command with it.
+
+**Prefer not to touch the terminal?** Paste this into any Claude Code session and it will do the
+install for you:
+
+> Add the Claude Code plugin marketplace `NickyStaffs29/Anti-Vibe-Check`, install the plugin
+> `vibecheck@vibecheck` from it, and confirm `/vibecheck` is available.
+
+## Get updates automatically (weekly)
+
+Paste this into Claude Code once and it will set up a recurring weekly job on your device — you
+never have to think about updates again:
+
+> Set up a recurring weekly automation on this device that runs
+> `claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck`
+> so my vibecheck plugin stays current. Use the native scheduler for my OS and confirm it's
+> registered.
+
+To update manually instead:
+
+```bash
+claude plugin marketplace update vibecheck && claude plugin update vibecheck@vibecheck
+```
+
+## Run it
+
+```bash
+/vibecheck                    # audit the current directory
+/vibecheck ~/code/my-app      # audit a specific repo
+/vibecheck --deep             # section auditors on Opus instead of Sonnet
+/vibecheck --section S2       # one section, plus verification
+```
+
+Natural language works too — "is my app secure", "did I leak any keys", "can someone see other
+users' data" all trigger it. Findings land in `VIBECHECK_REPORT.md` at the repo root
+(auto-gitignored). Then fix them:
+
+```bash
+/vibecheck-fix                       # CRITICAL tier only (default)
+/vibecheck-fix --tier HIGH
+/vibecheck-fix --only S2.3,S4.1
+```
+
+## Install (Codex)
+
+Codex reads Claude Code plugin marketplaces natively:
+
+```bash
+codex plugin marketplace add https://github.com/NickyStaffs29/Anti-Vibe-Check
+codex plugin add vibecheck@vibecheck
+```
+
+Then set up the native Codex agents, which run the tiers at pinned reasoning effort:
+
+```bash
+git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
+mkdir -p ~/.codex/vibecheck ~/.codex/agents ~/.codex/skills/vibecheck
+cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
+ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
+ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
+cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
+```
+
+The skill symlink is required — the root `SKILL.md` targets Claude Code and uses
+`${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand. Run with:
+
+```bash
+codex --profile vibecheck "Run a vibecheck security audit on this repo."
+```
+
+Full Codex setup detail: [`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
+
+---
+
+# How it works (reference)
 
 Five section auditors run in parallel, then an adversarial verifier tries to **refute** every
-failure they reported and **re-audits** every pass that didn't cite evidence. Read-only end to
-end: nothing in the audit pipeline can edit your source.
+failure they reported and **re-audits** every pass that didn't cite evidence.
 
 Ships as a Claude Code plugin and as native Codex agents — one shared checklist, so the two
 stacks can't drift apart.
-
----
 
 ## Why this exists
 
@@ -29,8 +118,6 @@ you stop looking. So the evidence rules here are structural rather than advisory
 Then the verifier distrusts all of it, in both directions. A false FAIL wastes hours and teaches
 you to ignore the report. A false PASS is the one that gets you breached. They're not equally
 bad, so anything genuinely unresolvable lands on `NEEDS-REVIEW`, never on PASS.
-
----
 
 ## What makes it specific to AI-assisted code
 
@@ -58,8 +145,6 @@ hands back a clean bill of health:
 The verifier re-audits **S1.3, S2.2, S2.3, S4.3 and S5.5 unconditionally**, regardless of what
 the section auditor concluded, because those five are where a plausible-looking PASS is most
 often wrong.
-
----
 
 ## Pipeline
 
@@ -125,8 +210,6 @@ Tiering follows [@daniel_mac8's `sol-advisor` pattern](https://x.com/daniel_mac8
 frontier model orchestrates, cheap model at max reasoning implements routine work, mid model at
 max handles the complex parts, and a fresh frontier instance reviews.
 
----
-
 ## The 30 checks
 
 All 30 live in [`reference/checklist.md`](reference/checklist.md) — **one file, read by every
@@ -187,67 +270,7 @@ rather than invent findings.
 | S5.7 | Errors don't leak stack traces, SQL, or paths | MEDIUM |
 | S5.8 | Logging exists for security-relevant events | MEDIUM |
 
----
-
-## Install
-
-### Claude Code
-
-```bash
-claude plugin marketplace add NickyStaffs29/Anti-Vibe-Check
-claude plugin install vibecheck@vibecheck
-```
-
-Restart Claude Code, or run `/reload-plugins`.
-
-### Codex
-
-Codex reads Claude Code plugin marketplaces natively, so the same repo installs directly:
-
-```bash
-codex plugin marketplace add https://github.com/NickyStaffs29/Anti-Vibe-Check
-codex plugin add vibecheck@vibecheck
-```
-
-Then set up the native Codex agents, which run the tiers at pinned reasoning effort:
-
-```bash
-git clone https://github.com/NickyStaffs29/Anti-Vibe-Check ~/src/anti-vibe-check
-mkdir -p ~/.codex/vibecheck
-mkdir -p ~/.codex/agents
-cp ~/src/anti-vibe-check/codex/agents/*.toml ~/.codex/agents/
-ln -s ~/src/anti-vibe-check/reference/checklist.md ~/.codex/vibecheck/checklist.md
-cat ~/src/anti-vibe-check/codex/profiles.toml >> ~/.codex/config.toml
-
-mkdir -p ~/.codex/skills/vibecheck
-ln -s ~/src/anti-vibe-check/codex/SKILL.md ~/.codex/skills/vibecheck/SKILL.md
-```
-
-The last two lines register `/vibecheck` as a Codex skill. The plugin install alone won't — the
-root `SKILL.md` targets Claude Code and uses `${CLAUDE_PLUGIN_ROOT}`, which Codex doesn't expand.
-
-Run it with the orchestrator profile:
-
-```bash
-codex --profile vibecheck "Run a vibecheck security audit on this repo."
-```
-
-`codex/agents/*.toml` are generated from the Claude agents by `codex/build-agents.py`, so the two
-stacks can't drift. Regenerate after editing anything in `agents/`.
-
-## Usage
-
-```bash
-/vibecheck                    # audit the current directory
-/vibecheck ~/code/my-app      # audit a specific repo
-/vibecheck --deep             # section auditors on Opus instead of Sonnet
-/vibecheck --section S2       # one section, plus verification
-```
-
-Natural language works too — the skill triggers on "is my app secure", "did I leak any keys",
-"can someone see other users' data".
-
-### Output
+## Output
 
 `VIBECHECK_REPORT.md` at the repo root:
 
@@ -261,16 +284,10 @@ Natural language works too — the skill triggers on "is my app secure", "did I 
 > **The report is added to `.gitignore` on every run.** It's a written map of your app's live
 > vulnerabilities — committing it to a public repo is worse than any single finding in it.
 
-### Fixing
+## Fixing
 
-```bash
-/vibecheck-fix                       # CRITICAL tier only (default)
-/vibecheck-fix --tier HIGH
-/vibecheck-fix --only S2.3,S4.1
-```
-
-Deliberately a separate command, so an audit never silently rewrites your auth code. It works one
-severity tier at a time and stops at each boundary.
+`/vibecheck-fix` is deliberately a separate command, so an audit never silently rewrites your
+auth code. It works one severity tier at a time and stops at each boundary.
 
 Two rules it won't break:
 
@@ -278,8 +295,6 @@ Two rules it won't break:
   live and still in git history. A finding stays open until you confirm the rotation.
 - **It never weakens a control to make something work.** If a fix breaks a feature, it reports
   the conflict rather than loosening CORS or disabling RLS.
-
----
 
 ## Codex mirror
 
@@ -289,9 +304,7 @@ Claude agents by [`codex/build-agents.py`](codex/build-agents.py). Tier profiles
 [`reference/CODEX_SETUP.md`](reference/CODEX_SETUP.md).
 
 One checklist, two stacks, no drift. A report from either side has the same format, so two runs
-are diffable.
-
----
+are diffable. Regenerate `codex/agents/*.toml` after editing anything in `agents/`.
 
 ## Scope
 
@@ -305,8 +318,6 @@ screen named — because guessing there is exactly the failure this tool exists 
 
 Clean output means the 30 known holes weren't found. It does not mean the app is secure.
 
----
-
 ## Credits
 
 The original 13 checks came from two TikToks by [@millee.md](https://www.tiktok.com/@millee.md)
@@ -317,8 +328,6 @@ structure, the evidence rules, and the verification pass were added on top.
 
 Built on the same delegation hierarchy as
 [Compute Squad](https://github.com/NickyStaffs29/Compute-Squad-Agent-Delegation).
-
----
 
 ## License
 
